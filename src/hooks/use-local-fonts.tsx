@@ -3,8 +3,8 @@ import { useLocalFontQuery } from "./use-local-font-query";
 import { useYjsFontSync } from "./use-yjs-font-sync";
 
 type useLocalFontsType = {
-  fontsState: FontData[];
-  state: {
+  fonts: FontData[];
+  uiState: {
     loading: boolean;
     error: string | null;
   };
@@ -12,16 +12,16 @@ type useLocalFontsType = {
 };
 
 export function useLocalFonts({
-  fontsState,
-  state,
+  fonts,
+  uiState,
   documentName,
 }: useLocalFontsType) {
   const fontQuery = useLocalFontQuery();
 
-  const { loadAllFonts, clearCache, supportAndPermissionStatus } =
+  const { loadAllFonts, clearCache, supportAndPermissionStatus, yfonts, ydoc } =
     useYjsFontSync({
-      fontsState,
-      state,
+      fonts,
+      uiState,
       fontQuery,
       documentName,
     });
@@ -34,5 +34,7 @@ export function useLocalFonts({
     isMonospace: fontQuery.isMonospace,
     parseFontStyleToWeight: fontQuery.parseFontStyleToWeight,
     fontWeightLabels: fontQuery.fontWeightLabels,
+    yfonts,
+    ydoc,
   };
 }
