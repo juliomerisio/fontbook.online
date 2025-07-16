@@ -133,7 +133,7 @@ export const LocalFontViewer = () => {
           value={tab}
           className="mt-4 h-full flex flex-col flex-1 min-h-[90vh]"
         >
-          <VList ref={vlistRef} style={{ flex: 1 }}>
+          <VList ref={vlistRef} style={{ flex: 1 }} overscan={5}>
             {filteredGroupedFonts.length === 0 && <div>No fonts loaded.</div>}
             {filteredGroupedFonts.map((fontGroup, index) => (
               <FontFamilyCard
@@ -264,11 +264,18 @@ const FontMetaCard = React.memo(
           />
         </div>
 
-        <div className="mt-2 mb-1">
+        <div
+          className="mt-2 mb-1"
+          style={{
+            containerType: "inline-size",
+          }}
+        >
           <div
             style={{
+              whiteSpace: "nowrap",
+              display: "block",
               fontFamily: font.family,
-              fontSize: 36,
+              fontSize: "5.3cqw",
               padding: 8,
               borderRadius: 4,
             }}
