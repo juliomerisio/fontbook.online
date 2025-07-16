@@ -102,13 +102,13 @@ export const LocalFontViewer = () => {
         <Tabs.List className="relative z-0 flex gap-1 px-1">
           <Tabs.Tab
             value="all"
-            className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-600 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-gray-900 focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
+            className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-100 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-white focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
           >
             All
           </Tabs.Tab>
           <Tabs.Tab
             value="favorites"
-            className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-600 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-gray-900 focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
+            className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-100 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-white focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
           >
             Favorites
           </Tabs.Tab>
@@ -168,7 +168,7 @@ const FontMeta = React.memo(
                 toggleFavorite({ yfonts, ydoc, font });
               }
             }}
-            className="flex size-8 items-center justify-center rounded-sm text-gray-600 select-none  focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800  data-[pressed]:text-white"
+            className="flex size-8 items-center justify-center rounded-sm text-gray-100 select-none  focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800  data-[pressed]:text-white"
             render={(props, state) =>
               state.pressed ? (
                 <button type="button" {...props}>
