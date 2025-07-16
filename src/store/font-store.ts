@@ -2,7 +2,6 @@ import { proxy } from "valtio";
 import { FontData, FontMeta } from "../types";
 import * as Y from "yjs";
 
-
 export const uiState = proxy({
   loading: true,
   error: null as string | null,
@@ -33,6 +32,7 @@ export function toggleFavorite({
             family: font.family,
             style: font.style,
             favorite: !font.favorite,
+            styles: font.styles,
           },
         ]);
       });

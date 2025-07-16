@@ -9,7 +9,7 @@ import { Tabs } from "@base-ui-components/react/tabs";
 import { Toggle } from "@base-ui-components/react/toggle";
 import { type FontMeta } from "@/types";
 import * as Y from "yjs";
-import { HeartFilledIcon, HeartOutlineIcon } from "@/icons/icons";
+import { HeartFilledIcon, HeartOutlineIcon, PlusIcon } from "@/icons/icons";
 
 import { VList, VListHandle } from "virtua";
 import { Accordion } from "@base-ui-components/react/accordion";
@@ -31,27 +31,18 @@ const PermissionDenied = () => {
 };
 
 export const LocalFontViewer = () => {
-  const {
-    supportAndPermissionStatus,
-    loadAllFonts,
-    clearCache,
-    fontWeightLabels,
-    parseFontStyleToWeight,
-    yfonts,
-    ydoc,
-    // groupedFonts removed from hook
-  } = useLocalFonts({
-    fonts,
-    uiState,
-    documentName: "local-fonts-viewer",
-  });
+  const { supportAndPermissionStatus, loadAllFonts, clearCache, yfonts, ydoc } =
+    useLocalFonts({
+      fonts,
+      uiState,
+      documentName: "local-fonts-viewer",
+    });
 
   const snapshot = useSnapshot(uiState);
   const fontsSnapshot = useSnapshot(fonts);
   const [tab, setTab] = React.useState("all");
   const vlistRef = useRef<VListHandle>(null);
 
-  // Group fonts by family and attach styles (moved from hook)
   const groupedFonts = React.useMemo(() => {
     const familyMap = new Map<string, FontMeta & { styles: FontMeta[] }>();
     fontsSnapshot.forEach((font) => {
@@ -61,17 +52,14 @@ export const LocalFontViewer = () => {
           styles: [],
         });
       }
-      // Ensure each style also has a styles field (empty array)
       familyMap.get(font.family)!.styles.push({ ...font, styles: [] });
     });
-    // Optionally, sort styles by weight or style name
     familyMap.forEach((value) => {
       value.styles.sort((a, b) => a.style.localeCompare(b.style));
     });
     return Array.from(familyMap.values());
   }, [fontsSnapshot]);
 
-  // Filter by favorites if needed
   const filteredGroupedFonts = React.useMemo(() => {
     if (tab === "favorites") {
       return groupedFonts.filter((group) =>
@@ -163,7 +151,6 @@ export const LocalFontViewer = () => {
   );
 };
 
-// New component for a family card
 const FontFamilyCard = React.memo(
   ({
     fontGroup,
@@ -175,7 +162,6 @@ const FontFamilyCard = React.memo(
     ydoc: Y.Doc | null;
     nStyles?: number;
   }) => {
-    // Show only the first style
     const firstStyle = fontGroup.styles[0]
       ? { ...fontGroup.styles[0], styles: [] }
       : undefined;
@@ -239,14 +225,8 @@ const FontFamilyCard = React.memo(
   }
 );
 
-function PlusIcon(props: React.ComponentProps<"svg">) {
-  return (
-    <svg viewBox="0 0 12 12" fill="currentcolor" {...props}>
-      <path d="M6.75 0H5.25V5.25H0V6.75L5.25 6.75V12H6.75V6.75L12 6.75V5.25H6.75V0Z" />
-    </svg>
-  );
-}
-// Reusable card for a single font style
+FontFamilyCard.displayName = "FontFamilyCard";
+
 const FontMetaCard = React.memo(
   function FontMetaCard({
     font,
