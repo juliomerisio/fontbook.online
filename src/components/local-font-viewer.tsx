@@ -66,10 +66,6 @@ export const LocalFontViewer = () => {
     return <PermissionDenied />;
   }
 
-  if (snapshot.error) {
-    return <div className="text-red-500">Error: {snapshot.error}</div>;
-  }
-
   return (
     <div>
       <div className="flex gap-2 mb-2">
