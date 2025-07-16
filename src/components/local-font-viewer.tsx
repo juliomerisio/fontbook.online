@@ -133,7 +133,12 @@ export const LocalFontViewer = () => {
           value={tab}
           className="mt-4 h-full flex flex-col flex-1 min-h-[90vh]"
         >
-          <VList ref={vlistRef} style={{ flex: 1 }} overscan={5}>
+          <VList
+            ref={vlistRef}
+            style={{ flex: 1 }}
+            overscan={5}
+            className="overflow-x-hidden"
+          >
             {filteredGroupedFonts.length === 0 && <div>No fonts loaded.</div>}
             {filteredGroupedFonts.map((fontGroup, index) => (
               <FontFamilyCard
