@@ -49,8 +49,10 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
     stateRef.current.loading = true;
     stateRef.current.error = null;
     try {
-      const fontList = await fontQuery.loadAllFonts();
-      persistFontsToYjs(fontList);
+      if (supportAndPermissionStatusRef.current === "granted") {
+        const fontList = await fontQuery.loadAllFonts();
+        persistFontsToYjs(fontList);
+      }
     } catch (err: unknown) {
       stateRef.current.error =
         err instanceof Error ? err.message : "Unknown error";
@@ -86,9 +88,7 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
         return;
       }
 
-      if (supportAndPermissionStatusRef.current === "granted") {
-        loadAllFontsRef.current();
-      }
+      loadAllFontsRef.current();
     });
 
     const unbind = bind(fontState.current, yfonts);
