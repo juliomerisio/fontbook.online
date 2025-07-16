@@ -12,6 +12,7 @@ import * as Y from "yjs";
 import { HeartFilledIcon, HeartOutlineIcon } from "@/icons/icons";
 
 import { VList, VListHandle } from "virtua";
+import { Accordion } from "@base-ui-components/react/accordion";
 
 const NotSupported = () => {
   return (
@@ -38,6 +39,7 @@ export const LocalFontViewer = () => {
     parseFontStyleToWeight,
     yfonts,
     ydoc,
+    // groupedFonts removed from hook
   } = useLocalFonts({
     fonts,
     uiState,
@@ -49,10 +51,35 @@ export const LocalFontViewer = () => {
   const [tab, setTab] = React.useState("all");
   const vlistRef = useRef<VListHandle>(null);
 
-  const filteredFonts =
-    tab === "favorites"
-      ? fontsSnapshot.filter((font) => font.favorite)
-      : fontsSnapshot;
+  // Group fonts by family and attach styles (moved from hook)
+  const groupedFonts = React.useMemo(() => {
+    const familyMap = new Map<string, FontMeta & { styles: FontMeta[] }>();
+    fontsSnapshot.forEach((font) => {
+      if (!familyMap.has(font.family)) {
+        familyMap.set(font.family, {
+          ...font,
+          styles: [],
+        });
+      }
+      // Ensure each style also has a styles field (empty array)
+      familyMap.get(font.family)!.styles.push({ ...font, styles: [] });
+    });
+    // Optionally, sort styles by weight or style name
+    familyMap.forEach((value) => {
+      value.styles.sort((a, b) => a.style.localeCompare(b.style));
+    });
+    return Array.from(familyMap.values());
+  }, [fontsSnapshot]);
+
+  // Filter by favorites if needed
+  const filteredGroupedFonts = React.useMemo(() => {
+    if (tab === "favorites") {
+      return groupedFonts.filter((group) =>
+        group.styles.some((style) => style.favorite)
+      );
+    }
+    return groupedFonts;
+  }, [groupedFonts, tab]);
 
   if (snapshot.loading) {
     return (
@@ -119,19 +146,16 @@ export const LocalFontViewer = () => {
           className="mt-4 h-full flex flex-col flex-1 min-h-[90vh]"
         >
           <VList ref={vlistRef} style={{ flex: 1 }}>
-            {filteredFonts.length === 0 && <div>No fonts loaded.</div>}
-            {filteredFonts.map((font, index) => {
-              return (
-                <FontMeta
-                  key={font.postscriptName + index}
-                  font={font}
-                  parseFontStyleToWeight={parseFontStyleToWeight}
-                  fontWeightLabels={fontWeightLabels}
-                  yfonts={yfonts}
-                  ydoc={ydoc}
-                />
-              );
-            })}
+            {filteredGroupedFonts.length === 0 && <div>No fonts loaded.</div>}
+            {filteredGroupedFonts.map((fontGroup, index) => (
+              <FontFamilyCard
+                key={fontGroup.family + index}
+                fontGroup={fontGroup}
+                yfonts={yfonts}
+                ydoc={ydoc}
+                nStyles={1} // Only show the first style
+              />
+            ))}
           </VList>
         </Tabs.Panel>
       </Tabs.Root>
@@ -139,27 +163,104 @@ export const LocalFontViewer = () => {
   );
 };
 
-const FontMeta = React.memo(
-  function FontMeta({
+// New component for a family card
+const FontFamilyCard = React.memo(
+  ({
+    fontGroup,
+    yfonts,
+    ydoc,
+  }: {
+    fontGroup: FontMeta;
+    yfonts: Y.Array<FontMeta> | null;
+    ydoc: Y.Doc | null;
+    nStyles?: number;
+  }) => {
+    // Show only the first style
+    const firstStyle = fontGroup.styles[0]
+      ? { ...fontGroup.styles[0], styles: [] }
+      : undefined;
+    const moreCount = fontGroup.styles.length - 1;
+    const moreStyles = fontGroup.styles
+      .slice(1)
+      .map((s) => ({ ...s, styles: [] }));
+    const [open, setOpen] = React.useState(false);
+    return (
+      <div className="flex flex-col gap-2 mb-2 w-full">
+        <div className="flex flex-col items-center gap-2 w-full">
+          {firstStyle && (
+            <FontMetaCard font={firstStyle} yfonts={yfonts} ydoc={ydoc} />
+          )}
+          {moreCount > 0 && (
+            <Accordion.Root
+              value={open ? ["more"] : []}
+              onValueChange={(v) =>
+                setOpen(Array.isArray(v) && v.includes("more"))
+              }
+              className="flex-1 w-full"
+            >
+              <Accordion.Item value="more" className="border-0 p-0 m-0 w-full">
+                <Accordion.Header className="p-0 m-0">
+                  <Accordion.Trigger className="group flex items-center gap-1 bg-transparent p-0 m-0 text-xs text-gray-500 ml-2 hover:underline">
+                    +{moreCount} more…
+                    <PlusIcon className="size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-visible p-0 m-0">
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {moreStyles.map((styleFont, idx) => (
+                      <FontMetaCard
+                        key={styleFont.postscriptName + idx}
+                        font={styleFont}
+                        yfonts={yfonts}
+                        ydoc={ydoc}
+                      />
+                    ))}
+                  </div>
+                </Accordion.Panel>
+              </Accordion.Item>
+            </Accordion.Root>
+          )}
+        </div>
+      </div>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Only re-render if favorites have changed
+    const prevFavorites = new Set(
+      prevProps.fontGroup.styles.map((s) => s.favorite)
+    );
+    const nextFavorites = new Set(
+      nextProps.fontGroup.styles.map((s) => s.favorite)
+    );
+    return (
+      prevFavorites.size === nextFavorites.size &&
+      Array.from(prevFavorites).every((f) => nextFavorites.has(f))
+    );
+  }
+);
+
+function PlusIcon(props: React.ComponentProps<"svg">) {
+  return (
+    <svg viewBox="0 0 12 12" fill="currentcolor" {...props}>
+      <path d="M6.75 0H5.25V5.25H0V6.75L5.25 6.75V12H6.75V6.75L12 6.75V5.25H6.75V0Z" />
+    </svg>
+  );
+}
+// Reusable card for a single font style
+const FontMetaCard = React.memo(
+  function FontMetaCard({
     font,
-    parseFontStyleToWeight,
-    fontWeightLabels,
     yfonts,
     ydoc,
   }: {
     font: FontMeta;
-    parseFontStyleToWeight: (style: string) => number;
-    fontWeightLabels: Record<string, string>;
     yfonts: Y.Array<FontMeta> | null;
     ydoc: Y.Doc | null;
   }) {
-    const weight = parseFontStyleToWeight(font.style);
-    const weightLabel = fontWeightLabels[weight] || weight;
-
     return (
-      <div className="border rounded p-2 flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <b>PostScript Name:</b> {font.postscriptName}
+      <div className="border rounded p-2 flex flex-col gap-1 min-w-[220px] w-full">
+        <div className="flex items-center gap-2 justify-between">
+          <div className="text-xs opacity-80">{font.fullName}</div>
           <Toggle
             aria-label="Favorite"
             pressed={font.favorite ?? false}
@@ -182,25 +283,12 @@ const FontMeta = React.memo(
             }
           />
         </div>
-        <div>
-          <b>Full Name:</b> {font.fullName}
-        </div>
-        <div>
-          <b>Family:</b> {font.family}
-        </div>
-        <div>
-          <b>Style:</b> {font.style}
-        </div>
-        <div>
-          <b>Weight:</b> {weightLabel} ({weight})
-        </div>
 
         <div className="mt-2 mb-1">
           <div
             style={{
               fontFamily: font.family,
-              fontSize: 24,
-              border: "1px dashed #ccc",
+              fontSize: 36,
               padding: 8,
               borderRadius: 4,
             }}

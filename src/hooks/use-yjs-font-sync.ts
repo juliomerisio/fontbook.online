@@ -36,6 +36,7 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
           family: f.family,
           style: f.style,
           favorite: f.favorite ?? false,
+          styles: [],
         }))
       );
     }
