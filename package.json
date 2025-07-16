@@ -9,11 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-beta.1",
     "next": "15.4.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "valtio": "^2.1.5",
     "valtio-yjs-read-only": "^0.5.2",
+    "virtua": "^0.41.5",
     "y-indexeddb": "^9.0.12",
     "yjs": "^13.6.27",
     "zod": "^4.0.5"

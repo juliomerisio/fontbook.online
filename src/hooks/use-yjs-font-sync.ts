@@ -8,8 +8,8 @@ import { useLocalFontQueryType } from "./use-local-font-query";
 type useYjsFontSyncType = {
   documentName: string;
   initialFonts?: FontMeta[];
-  fontsState: FontData[];
-  state: {
+  fonts: FontData[];
+  uiState: {
     loading: boolean;
     error: string | null;
   };
@@ -17,13 +17,14 @@ type useYjsFontSyncType = {
 };
 
 export function useYjsFontSync(props: useYjsFontSyncType) {
-  const { fontsState, state, fontQuery, documentName } = props;
+  const { fonts, uiState, fontQuery, documentName } = props;
 
   const ydocRef = useRef<Y.Doc | null>(null);
   const yfontsRef = useRef<Y.Array<FontMeta> | null>(null);
   const persistenceRef = useRef<IndexeddbPersistence | null>(null);
-  const supportAndPermissionStatusRef =
-    useRef<FontPermissionStatus>("not-supported");
+  const supportAndPermissionStatusRef = useRef<FontPermissionStatus | null>(
+    null
+  );
 
   const persistFontsToYjs = useCallback((fontsToPersist: FontData[]) => {
     if (yfontsRef.current && fontsToPersist.length > 0) {
@@ -34,16 +35,17 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
           fullName: f.fullName,
           family: f.family,
           style: f.style,
+          favorite: f.favorite ?? false,
         }))
       );
     }
   }, []);
 
-  const fontState = useRef(fontsState);
-  const stateRef = useRef(state);
+  const fontState = useRef(fonts);
+  const stateRef = useRef(uiState);
 
-  fontState.current = fontsState;
-  stateRef.current = state;
+  fontState.current = fonts;
+  stateRef.current = uiState;
 
   const loadAllFonts = useCallback(async () => {
     stateRef.current.loading = true;
@@ -114,7 +116,6 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
     persistence: persistenceRef.current,
   };
 }
-
 function createYjsFontDoc(documentName: string): {
   ydoc: Y.Doc;
   yfonts: Y.Array<FontMeta>;

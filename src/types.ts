@@ -13,6 +13,7 @@ export const FontMetaSchema = z.object({
   fullName: z.string(),
   family: z.string(),
   style: z.string(),
+  favorite: z.boolean().optional().default(false),
 });
 export type FontMeta = z.infer<typeof FontMetaSchema>;
 
@@ -20,5 +21,6 @@ export interface FontData extends FontMeta {
   blob: () => Promise<Blob>;
 }
 
-
 export type FontPermissionStatus = "granted" | "denied" | "not-supported";
+
+export type FavoritesState = Record<string, boolean>;
