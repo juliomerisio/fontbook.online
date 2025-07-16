@@ -80,9 +80,13 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
 
     persistence.on("synced", async () => {
       const yFontsArr = yfonts.toArray();
+
       if (yFontsArr.length > 0) {
         stateRef.current.loading = false;
-      } else {
+        return;
+      }
+
+      if (supportAndPermissionStatusRef.current === "granted") {
         loadAllFontsRef.current();
       }
     });

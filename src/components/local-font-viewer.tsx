@@ -42,7 +42,20 @@ export const LocalFontViewer = () => {
   const fonts = useSnapshot(fontsState);
 
   if (snapshot.loading) {
-    return null;
+    return (
+      <div className="flex gap-2 mb-2">
+        <button
+          onClick={loadAllFonts}
+          disabled={snapshot.loading}
+          className="border px-2 py-1 rounded"
+        >
+          Load All Fonts
+        </button>
+        <button onClick={clearCache} className="border px-2 py-1 rounded">
+          Clear All Fonts
+        </button>
+      </div>
+    );
   }
 
   if (supportAndPermissionStatus === "not-supported") {
@@ -65,7 +78,7 @@ export const LocalFontViewer = () => {
           disabled={snapshot.loading}
           className="border px-2 py-1 rounded"
         >
-          {snapshot.loading ? "Loading..." : "Load All Fonts"}
+          Load All Fonts
         </button>
         <button onClick={clearCache} className="border px-2 py-1 rounded">
           Clear All Fonts
