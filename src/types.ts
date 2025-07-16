@@ -14,6 +14,18 @@ export const FontMetaSchema = z.object({
   family: z.string(),
   style: z.string(),
   favorite: z.boolean().optional().default(false),
+  styles: z
+    .array(
+      z.object({
+        postscriptName: z.string(),
+        fullName: z.string(),
+        family: z.string(),
+        style: z.string(),
+        favorite: z.boolean().optional().default(false),
+      })
+    )
+    .optional()
+    .default([]),
 });
 export type FontMeta = z.infer<typeof FontMetaSchema>;
 
