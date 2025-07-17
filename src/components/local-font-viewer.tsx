@@ -13,6 +13,7 @@ import { HeartFilledIcon, HeartOutlineIcon, PlusIcon } from "@/icons/icons";
 
 import { VList, VListHandle } from "virtua";
 import { Accordion } from "@base-ui-components/react/accordion";
+import useFitText from "@/hooks/use-fit-text";
 
 const NotSupported = () => {
   return (
@@ -135,7 +136,12 @@ export const LocalFontViewer = () => {
         >
           <VList
             ref={vlistRef}
-            style={{ flex: 1 }}
+            style={{
+              flex: 1,
+
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
             overscan={5}
             className="overflow-x-hidden"
           >
@@ -176,7 +182,7 @@ const FontFamilyCard = React.memo(
       .map((s) => ({ ...s, styles: [] }));
     const [open, setOpen] = React.useState(false);
     return (
-      <div className="flex flex-col gap-2 mb-2 w-full">
+      <div className="flex flex-col gap-2 mb-2 w-full min-h-[175px]">
         <div className="flex flex-col items-center gap-2 w-full">
           {firstStyle && (
             <FontMetaCard font={firstStyle} yfonts={yfonts} ydoc={ydoc} />
@@ -242,8 +248,15 @@ const FontMetaCard = React.memo(
     yfonts: Y.Array<FontMeta> | null;
     ydoc: Y.Doc | null;
   }) {
+    const { textRef, containerRef, fontSize } = useFitText({
+      minFontSize: 10,
+      deps: [font.family],
+    });
     return (
-      <div className="border rounded p-2 flex flex-col gap-1 min-w-[220px] w-full">
+      <div
+        className="border rounded p-2 flex flex-col gap-1 min-w-[220px] w-full min-h-[275px]"
+        ref={containerRef}
+      >
         <div className="flex items-center gap-2 justify-between">
           <div className="text-xs opacity-80">{font.fullName}</div>
           <Toggle
@@ -276,11 +289,13 @@ const FontMetaCard = React.memo(
           }}
         >
           <div
+            ref={textRef}
+            data-scale-width="true"
             style={{
               whiteSpace: "nowrap",
               display: "block",
               fontFamily: font.family,
-              fontSize: "5.3cqw",
+              fontSize: fontSize ? `${fontSize}px` : undefined,
               padding: 8,
               borderRadius: 4,
             }}
