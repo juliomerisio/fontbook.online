@@ -89,7 +89,7 @@ function getSessionFontSizeCache(
     if (raw) {
       return JSON.parse(raw);
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
   return {};
@@ -104,7 +104,7 @@ function setSessionFontSizeCache(
   try {
     const key = getSessionCacheKey(fontFamily, viewportWidth);
     window.sessionStorage.setItem(key, JSON.stringify(cache));
-  } catch (e) {
+  } catch {
     // ignore
   }
 }

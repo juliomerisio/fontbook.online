@@ -1,4 +1,4 @@
-import { Ref, RefCallback, useMemo } from "react";
+import { Ref, RefCallback, useMemo, useRef } from "react";
 
 /**
  * Assigns a value to a ref.
@@ -30,7 +30,10 @@ export const mergeRefs = mergeRefsReact19;
  * @returns Merged ref.
  */
 export function useMergeRefs<T>(refs: (Ref<T> | undefined)[]): Ref<T> {
-  return useMemo(() => mergeRefs(refs), refs);
+  const stableRefs = useRef(refs);
+
+  stableRefs.current = refs;
+  return useMemo(() => mergeRefs(stableRefs.current), []);
 }
 
 export function mergeRefsReact19<T>(refs: (Ref<T> | undefined)[]): Ref<T> {

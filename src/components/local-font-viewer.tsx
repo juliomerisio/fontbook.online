@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useMemo, useLayoutEffect, useEffect } from "react";
+import {
+  useRef,
+  useMemo,
+  useLayoutEffect,
+  useEffect,
+  useCallback,
+} from "react";
 import { useLocalFonts } from "@/hooks/use-local-fonts";
 import { fonts, uiState, toggleFavorite } from "@/store/font-store";
 import { useSnapshot } from "valtio";
@@ -68,21 +74,22 @@ export function RestorableList<T>({
   }, [cacheKey]);
 
   useLayoutEffect(() => {
-    if (!ref.current) return;
-    const handle = ref.current;
+    const currentRef = ref.current;
+    if (!currentRef) return;
+    const handle = currentRef;
     if (offset !== undefined) {
       console.log("[RestorableList] Applying offset:", offset);
       handle.scrollTo(offset);
     }
     return () => {
-      if (ref.current) {
+      if (currentRef) {
         console.log(
           "[RestorableList] Cleanup: Saving offset:",
-          ref.current.scrollOffset
+          currentRef.scrollOffset
         );
         sessionStorage.setItem(
           cacheKey,
-          JSON.stringify([ref.current.scrollOffset, ref.current.cache])
+          JSON.stringify([currentRef.scrollOffset, currentRef.cache])
         );
       }
     };
@@ -90,15 +97,18 @@ export function RestorableList<T>({
 
   // Save offset before leaving page
   useEffect(() => {
+    // Capture ref.current in closure
+    const currentRef = ref.current;
+
     const handleBeforeUnload = () => {
-      if (ref.current) {
+      if (currentRef) {
         console.log(
           "[RestorableList] beforeunload: Saving offset:",
-          ref.current.scrollOffset
+          currentRef.scrollOffset
         );
         sessionStorage.setItem(
           cacheKey,
-          JSON.stringify([ref.current.scrollOffset, ref.current.cache])
+          JSON.stringify([currentRef.scrollOffset, currentRef.cache])
         );
       }
     };
@@ -134,22 +144,24 @@ export const LocalFontViewer = () => {
   const fontsSnapshot = useSnapshot(fonts);
   const [tab, setTab] = useQueryState("tab", parseAsString.withDefault("all"));
 
-  function normalizeFontMeta(font: any): FontMeta {
+  const normalizeFontMeta = useCallback((font: FontMeta): FontMeta => {
     return {
       ...font,
       styles: Array.isArray(font.styles)
-        ? font.styles.map((s: any) =>
+        ? font.styles.map((s) =>
+            // @ts-expect-error - styles is optional
             normalizeFontMeta({ ...s, styles: s.styles ?? [] })
           )
         : [],
     };
-  }
+  }, []);
   const normalizedFontsSnapshot = React.useMemo(
     () =>
       fontsSnapshot.map((f) =>
+        // @ts-expect-error - styles is optional
         normalizeFontMeta({ ...f, styles: f.styles ?? [] })
       ),
-    [fontsSnapshot]
+    [fontsSnapshot, normalizeFontMeta]
   );
 
   const groupedFonts = React.useMemo(() => {
@@ -166,7 +178,7 @@ export const LocalFontViewer = () => {
       value.styles.sort((a, b) => a.style.localeCompare(b.style));
     });
     return Array.from(familyMap.values());
-  }, [normalizedFontsSnapshot]);
+  }, [normalizedFontsSnapshot, normalizeFontMeta]);
 
   const favoritesList = React.useMemo(() => {
     if (tab !== "favorites") return [];
@@ -186,12 +198,12 @@ export const LocalFontViewer = () => {
 
   const cardRefs = React.useMemo(
     () => filteredGroupedFonts.map(() => React.createRef<HTMLDivElement>()),
-    [filteredGroupedFonts.length]
+    [filteredGroupedFonts]
   );
 
   const favoritesCardRefs = React.useMemo(
     () => favoritesList.map(() => React.createRef<HTMLDivElement>()),
-    [favoritesList.length]
+    [favoritesList]
   );
 
   // Throttle for navigation keys
