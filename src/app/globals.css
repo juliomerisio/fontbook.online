@@ -32,3 +32,14 @@ body {
 .root {
   isolation: isolate;
 }
+
+html,
+body {
+  overscroll-behavior: none;
+}
+
+.font-card:focus-visible {
+  outline: none;
+  background-color: #2564eb15;
+  z-index: 1;
+}

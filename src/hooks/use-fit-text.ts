@@ -66,7 +66,49 @@ function setFontSizeCache(key: string, value: number) {
   }
 }
 
-// Debounce utility
+// Helpers for sessionStorage cache
+function getViewportWidth() {
+  if (typeof window !== "undefined") {
+    return window.innerWidth;
+  }
+  return 0;
+}
+
+function getSessionCacheKey(fontFamily: string, viewportWidth: number) {
+  return `fitTextCache:${fontFamily}:${viewportWidth}`;
+}
+
+function getSessionFontSizeCache(
+  fontFamily: string,
+  viewportWidth: number
+): Record<string, number> {
+  if (typeof window === "undefined" || !window.sessionStorage) return {};
+  try {
+    const key = getSessionCacheKey(fontFamily, viewportWidth);
+    const raw = window.sessionStorage.getItem(key);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch (e) {
+    // ignore
+  }
+  return {};
+}
+
+function setSessionFontSizeCache(
+  fontFamily: string,
+  viewportWidth: number,
+  cache: Record<string, number>
+) {
+  if (typeof window === "undefined" || !window.sessionStorage) return;
+  try {
+    const key = getSessionCacheKey(fontFamily, viewportWidth);
+    window.sessionStorage.setItem(key, JSON.stringify(cache));
+  } catch (e) {
+    // ignore
+  }
+}
+
 function debounce<T extends (...args: unknown[]) => void>(
   fn: T,
   delay: number
@@ -130,14 +172,29 @@ export default function useFitText({
       minFontSize,
       maxFontSize: maxFont,
     });
-    // Check cache
+
+    // Session storage cache logic
+    const viewportWidth = getViewportWidth();
+    const sessionCache = getSessionFontSizeCache(fontFamily, viewportWidth);
+    if (sessionCache[cacheKey]) {
+      const cached = sessionCache[cacheKey];
+      el.style.fontSize = `${cached}px`;
+      setFontSize(cached);
+      setFitting(true);
+      if (debug) {
+        console.log("[fitText] sessionStorage cache hit", { cacheKey, cached });
+      }
+      return;
+    }
+
+    // Check in-memory cache as fallback
     if (fontSizeCache.has(cacheKey)) {
       const cached = fontSizeCache.get(cacheKey)!;
       el.style.fontSize = `${cached}px`;
       setFontSize(cached);
       setFitting(true);
       if (debug) {
-        console.log("[fitText] cache hit", { cacheKey, cached });
+        console.log("[fitText] memory cache hit", { cacheKey, cached });
       }
       return;
     }
@@ -156,6 +213,9 @@ export default function useFitText({
       setFontSize(result);
       setFitting(true);
       setFontSizeCache(cacheKey, result);
+      // Update sessionStorage cache
+      sessionCache[cacheKey] = result;
+      setSessionFontSizeCache(fontFamily, viewportWidth, sessionCache);
       if (debug) {
         console.log({
           maxW,
@@ -187,12 +247,14 @@ export default function useFitText({
     setFontSize(best);
     setFitting(true);
     setFontSizeCache(cacheKey, best);
+    // Update sessionStorage cache
+    sessionCache[cacheKey] = best;
+    setSessionFontSizeCache(fontFamily, viewportWidth, sessionCache);
     if (debug) {
       console.log({ maxW, maxH, best, el, box });
     }
   }, [minFontSize, maxFontSize, boxMultiplier, debug]);
 
-  // Debounced fit function
   const debouncedFitRef = useRef<ReturnType<typeof debounce> | null>(null);
   if (!debouncedFitRef.current) {
     debouncedFitRef.current = debounce(fit, 100); // 100ms debounce
@@ -203,7 +265,6 @@ export default function useFitText({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fit, ...(deps || [])]);
 
-  // ResizeObserver logic
   useEffect(() => {
     const container = containerElRef.current;
     if (!container) return;

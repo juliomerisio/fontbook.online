@@ -1,19 +1,19 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useMemo, useLayoutEffect, useEffect } from "react";
 import { useLocalFonts } from "@/hooks/use-local-fonts";
 import { fonts, uiState, toggleFavorite } from "@/store/font-store";
 import { useSnapshot } from "valtio";
 import * as React from "react";
 import { Tabs } from "@base-ui-components/react/tabs";
-import { Toggle } from "@base-ui-components/react/toggle";
 import { type FontMeta } from "@/types";
-import * as Y from "yjs";
-import { HeartFilledIcon, HeartOutlineIcon, PlusIcon } from "@/icons/icons";
+import { useQueryState, parseAsString } from "nuqs";
 
 import { VList, VListHandle } from "virtua";
-import { Accordion } from "@base-ui-components/react/accordion";
-import useFitText from "@/hooks/use-fit-text";
+import { useMousetrap } from "@/hooks/use-mouse-trap";
+import { ExtendedKeyboardEvent } from "mousetrap";
+import { FontFamilyCard, FontMetaCard } from "./font-meta-card";
+import { useMergeRefs } from "@/hooks/use-merge-refs";
 
 const NotSupported = () => {
   return (
@@ -31,6 +31,97 @@ const PermissionDenied = () => {
   );
 };
 
+export function RestorableList<T>({
+  id,
+  data,
+  renderRow,
+  style,
+  overscan = 10,
+  className,
+  vlistRef,
+}: {
+  id: string;
+  data: T[];
+  renderRow: (item: T, index: number) => React.ReactNode;
+  style?: React.CSSProperties;
+  overscan?: number;
+  className?: string;
+  vlistRef?: React.RefObject<VListHandle | null>;
+}) {
+  const cacheKey = "list-cache-" + id;
+
+  const ref = useRef<VListHandle>(null);
+  const mergedRef = useMergeRefs([vlistRef, ref]);
+
+  const [offset, cache] = useMemo(() => {
+    if (typeof window === "undefined") return [undefined, undefined];
+    const serialized = sessionStorage.getItem(cacheKey);
+    if (!serialized) return [undefined, undefined];
+    try {
+      const parsed = JSON.parse(serialized);
+      if (Array.isArray(parsed)) return parsed;
+      if (typeof parsed === "number") return [parsed, undefined];
+      return [undefined, undefined];
+    } catch {
+      return [undefined, undefined];
+    }
+  }, [cacheKey]);
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const handle = ref.current;
+    if (offset !== undefined) {
+      console.log("[RestorableList] Applying offset:", offset);
+      handle.scrollTo(offset);
+    }
+    return () => {
+      if (ref.current) {
+        console.log(
+          "[RestorableList] Cleanup: Saving offset:",
+          ref.current.scrollOffset
+        );
+        sessionStorage.setItem(
+          cacheKey,
+          JSON.stringify([ref.current.scrollOffset, ref.current.cache])
+        );
+      }
+    };
+  }, [offset, cacheKey]);
+
+  // Save offset before leaving page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (ref.current) {
+        console.log(
+          "[RestorableList] beforeunload: Saving offset:",
+          ref.current.scrollOffset
+        );
+        sessionStorage.setItem(
+          cacheKey,
+          JSON.stringify([ref.current.scrollOffset, ref.current.cache])
+        );
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [cacheKey]);
+
+  return (
+    <VList
+      ref={mergedRef}
+      cache={cache}
+      style={style}
+      overscan={overscan}
+      className={className}
+    >
+      {data.map(renderRow)}
+    </VList>
+  );
+}
+
 export const LocalFontViewer = () => {
   const { supportAndPermissionStatus, loadAllFonts, clearCache, yfonts, ydoc } =
     useLocalFonts({
@@ -41,25 +132,48 @@ export const LocalFontViewer = () => {
 
   const snapshot = useSnapshot(uiState);
   const fontsSnapshot = useSnapshot(fonts);
-  const [tab, setTab] = React.useState("all");
-  const vlistRef = useRef<VListHandle>(null);
+  const [tab, setTab] = useQueryState("tab", parseAsString.withDefault("all"));
+
+  function normalizeFontMeta(font: any): FontMeta {
+    return {
+      ...font,
+      styles: Array.isArray(font.styles)
+        ? font.styles.map((s: any) =>
+            normalizeFontMeta({ ...s, styles: s.styles ?? [] })
+          )
+        : [],
+    };
+  }
+  const normalizedFontsSnapshot = React.useMemo(
+    () =>
+      fontsSnapshot.map((f) =>
+        normalizeFontMeta({ ...f, styles: f.styles ?? [] })
+      ),
+    [fontsSnapshot]
+  );
 
   const groupedFonts = React.useMemo(() => {
     const familyMap = new Map<string, FontMeta & { styles: FontMeta[] }>();
-    fontsSnapshot.forEach((font) => {
+    normalizedFontsSnapshot.forEach((font) => {
+      const styleFont: FontMeta = normalizeFontMeta(font);
       if (!familyMap.has(font.family)) {
-        familyMap.set(font.family, {
-          ...font,
-          styles: [],
-        });
+        familyMap.set(font.family, { ...styleFont, styles: [styleFont] });
+      } else {
+        familyMap.get(font.family)!.styles.push(styleFont);
       }
-      familyMap.get(font.family)!.styles.push({ ...font, styles: [] });
     });
     familyMap.forEach((value) => {
       value.styles.sort((a, b) => a.style.localeCompare(b.style));
     });
     return Array.from(familyMap.values());
-  }, [fontsSnapshot]);
+  }, [normalizedFontsSnapshot]);
+
+  const favoritesList = React.useMemo(() => {
+    if (tab !== "favorites") return [];
+    return groupedFonts
+      .flatMap((group) => group.styles.filter((style) => style.favorite))
+      .map((font) => ({ ...font, styles: [] }));
+  }, [groupedFonts, tab]);
 
   const filteredGroupedFonts = React.useMemo(() => {
     if (tab === "favorites") {
@@ -69,6 +183,143 @@ export const LocalFontViewer = () => {
     }
     return groupedFonts;
   }, [groupedFonts, tab]);
+
+  const cardRefs = React.useMemo(
+    () => filteredGroupedFonts.map(() => React.createRef<HTMLDivElement>()),
+    [filteredGroupedFonts.length]
+  );
+
+  const favoritesCardRefs = React.useMemo(
+    () => favoritesList.map(() => React.createRef<HTMLDivElement>()),
+    [favoritesList.length]
+  );
+
+  // Throttle for navigation keys
+  const THROTTLE_MS = 80;
+  const lastNavRef = React.useRef(0);
+
+  const currentList =
+    tab === "favorites" ? favoritesList : filteredGroupedFonts;
+  const currentRefs = tab === "favorites" ? favoritesCardRefs : cardRefs;
+
+  const lastFocusedIndexRef = React.useRef<{ [key: string]: number }>({
+    all: 0,
+    favorites: 0,
+  });
+
+  // Persist last focused index per tab in sessionStorage
+  const FOCUS_KEY_PREFIX = "last-focused-index-";
+  const saveLastFocusedIndex = (tab: string, idx: number) => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(`${FOCUS_KEY_PREFIX}${tab}`, JSON.stringify(idx));
+    }
+  };
+
+  const loadLastFocusedIndex = (tab: string, max: number) => {
+    if (typeof window === "undefined") return 0;
+    const raw = sessionStorage.getItem(`${FOCUS_KEY_PREFIX}${tab}`);
+    let idx = 0;
+    if (raw) {
+      try {
+        idx = JSON.parse(raw);
+      } catch {}
+    }
+    if (typeof idx !== "number" || isNaN(idx)) idx = 0;
+    if (idx >= max) idx = max - 1;
+    if (idx < 0) idx = 0;
+    return idx;
+  };
+
+  const allVListRef = React.useRef<VListHandle | null>(null);
+  const favVListRef = React.useRef<VListHandle | null>(null);
+
+  useMousetrap([
+    //TODO: this still not 100% - need further debugging
+    // Navigation: ArrowDown, j, J
+    {
+      keys: ["down", "j"],
+      callback: (e: ExtendedKeyboardEvent) => {
+        e.preventDefault();
+        const now = Date.now();
+        if (now - lastNavRef.current < THROTTLE_MS) return;
+        lastNavRef.current = now;
+        const currentIndex = currentRefs.findIndex(
+          (ref) => ref.current === document.activeElement
+        );
+        // If nothing is focused, focus the first visible card
+        if (currentIndex === -1) {
+          const vlistRef = tab === "favorites" ? favVListRef : allVListRef;
+          const firstVisible = vlistRef.current?.findEndIndex() ?? 0;
+          if (currentRefs[firstVisible]?.current) {
+            currentRefs[firstVisible].current.focus();
+          }
+          return;
+        }
+
+        const next = Math.min(currentList.length - 1, currentIndex + 1);
+        if (next !== currentIndex) {
+          currentRefs[next]?.current?.focus();
+        }
+      },
+    },
+    // Navigation: ArrowUp, k, K
+    {
+      keys: ["up", "k"],
+      callback: (e: ExtendedKeyboardEvent) => {
+        e.preventDefault();
+        const now = Date.now();
+        if (now - lastNavRef.current < THROTTLE_MS) return;
+        lastNavRef.current = now;
+        const currentIndex = currentRefs.findIndex(
+          (ref) => ref.current === document.activeElement
+        );
+        // If nothing is focused, focus the first visible card
+        if (currentIndex === -1) {
+          const vlistRef = tab === "favorites" ? favVListRef : allVListRef;
+          const firstVisible = vlistRef.current?.findEndIndex() ?? 0;
+          if (currentRefs[firstVisible]?.current) {
+            currentRefs[firstVisible].current.focus();
+          }
+          return;
+        }
+        const prev = Math.max(0, currentIndex - 1);
+        if (prev !== currentIndex) {
+          currentRefs[prev]?.current?.focus();
+        }
+      },
+    },
+    // Toggle favorite
+    {
+      keys: ["f"],
+      callback: (e: ExtendedKeyboardEvent) => {
+        e.preventDefault();
+        const currentIndex = currentRefs.findIndex(
+          (ref) => ref.current === document.activeElement
+        );
+        const fontGroup = currentList[currentIndex];
+        if (
+          fontGroup &&
+          yfonts &&
+          ydoc &&
+          (tab === "favorites" ? fontGroup : fontGroup.styles[0])
+        ) {
+          toggleFavorite({
+            yfonts,
+            ydoc,
+            font: tab === "favorites" ? fontGroup : fontGroup.styles[0],
+          });
+        }
+      },
+    },
+    // Toggle tabs
+    {
+      keys: ["t"],
+      callback: (e: ExtendedKeyboardEvent) => {
+        e.preventDefault();
+        setTab((prev) => (prev === "all" ? "favorites" : "all"));
+      },
+    },
+  ]);
 
   if (snapshot.loading) {
     return (
@@ -97,216 +348,120 @@ export const LocalFontViewer = () => {
 
   return (
     <div style={{ minHeight: "100vh" }}>
-      <div className="flex gap-2 mb-2">
-        <button
-          onClick={loadAllFonts}
-          disabled={snapshot.loading}
-          className="border px-2 py-1 rounded"
-        >
-          Load All Fonts
-        </button>
-        <button onClick={clearCache} className="border px-2 py-1 rounded">
-          Clear All Fonts
-        </button>
-      </div>
-
       <Tabs.Root
         value={tab}
-        onValueChange={setTab}
-        className="rounded-md  mt-4"
-      >
-        <Tabs.List className="relative z-0 flex gap-1 px-1">
-          <Tabs.Tab
-            value="all"
-            className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-100 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-white focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
-          >
-            All
-          </Tabs.Tab>
-          <Tabs.Tab
-            value="favorites"
-            className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-100 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-white focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
-          >
-            Favorites
-          </Tabs.Tab>
-          <Tabs.Indicator className="absolute top-1/2 left-0 z-[-1] h-6 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-sm bg-gray-100 transition-all duration-200 ease-in-out" />
-        </Tabs.List>
-        <Tabs.Panel
-          value={tab}
-          className="mt-4 h-full flex flex-col flex-1 min-h-[90vh]"
-        >
-          <VList
-            ref={vlistRef}
-            style={{
-              flex: 1,
+        onValueChange={(v) => {
+          // Save last focused index for previous tab
+          const prevTab = tab;
+          const prevRefs =
+            prevTab === "favorites" ? favoritesCardRefs : cardRefs;
+          const prevIndex = prevRefs.findIndex(
+            (ref) => ref.current === document.activeElement
+          );
+          if (prevIndex !== -1) {
+            lastFocusedIndexRef.current[prevTab] = prevIndex;
+            saveLastFocusedIndex(prevTab, prevIndex);
+            console.log(
+              "[Focus Debug] Saved last focused index",
+              prevTab,
+              prevIndex
+            );
+          }
+          setTab(v);
 
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-            }}
+          const idx = loadLastFocusedIndex(
+            v,
+            v === "favorites"
+              ? favoritesList.length
+              : filteredGroupedFonts.length
+          );
+
+          lastFocusedIndexRef.current[v] = idx;
+        }}
+        className="rounded-md relative"
+      >
+        <div className="flex gap-2 absolute top-0">
+          <button
+            onClick={loadAllFonts}
+            disabled={snapshot.loading}
+            className="border px-2 py-1 rounded"
+          >
+            Load All Fonts
+          </button>
+          <button onClick={clearCache} className="border px-2 py-1 rounded">
+            Clear All Fonts
+          </button>
+
+          <Tabs.List className="relative z-0 flex gap-1 px-1">
+            <Tabs.Tab
+              value="all"
+              className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-100 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-white focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
+            >
+              All
+            </Tabs.Tab>
+            <Tabs.Tab
+              value="favorites"
+              className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-100 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-white focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
+            >
+              Favorites
+            </Tabs.Tab>
+
+            <Tabs.Indicator className="absolute top-1/2 left-0 z-[-1] h-6 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-sm bg-gray-100 transition-all duration-200 ease-in-out" />
+          </Tabs.List>
+        </div>
+
+        <Tabs.Panel
+          value="all"
+          className="h-full flex flex-col flex-1 min-h-[100vh] pt-10"
+        >
+          <RestorableList
+            id="all-fonts"
+            data={filteredGroupedFonts}
+            renderRow={(fontGroup, index) => (
+              <div
+                key={fontGroup.family + index}
+                ref={cardRefs[index]}
+                tabIndex={0}
+                className="font-card"
+              >
+                <FontFamilyCard
+                  fontGroup={fontGroup}
+                  yfonts={yfonts}
+                  ydoc={ydoc}
+                />
+              </div>
+            )}
+            style={{ flex: 1, scrollbarWidth: "none", msOverflowStyle: "none" }}
             overscan={5}
             className="overflow-x-hidden"
-          >
-            {filteredGroupedFonts.length === 0 && <div>No fonts loaded.</div>}
-            {filteredGroupedFonts.map((fontGroup, index) => (
-              <FontFamilyCard
-                key={fontGroup.family + index}
-                fontGroup={fontGroup}
-                yfonts={yfonts}
-                ydoc={ydoc}
-                nStyles={1} // Only show the first style
-              />
-            ))}
-          </VList>
+            vlistRef={allVListRef}
+          />
+        </Tabs.Panel>
+
+        <Tabs.Panel
+          value="favorites"
+          className="h-full flex flex-col flex-1 min-h-[100vh] pt-10"
+        >
+          <RestorableList
+            id="favorites-fonts"
+            data={favoritesList}
+            renderRow={(font, index) => (
+              <div
+                key={font.postscriptName}
+                ref={favoritesCardRefs[index]}
+                tabIndex={0}
+                className="font-card"
+              >
+                <FontMetaCard font={font} yfonts={yfonts} ydoc={ydoc} />
+              </div>
+            )}
+            style={{ flex: 1, scrollbarWidth: "none", msOverflowStyle: "none" }}
+            overscan={5}
+            className="overflow-x-hidden"
+            vlistRef={favVListRef}
+          />
         </Tabs.Panel>
       </Tabs.Root>
     </div>
   );
 };
-
-const FontFamilyCard = React.memo(
-  ({
-    fontGroup,
-    yfonts,
-    ydoc,
-  }: {
-    fontGroup: FontMeta;
-    yfonts: Y.Array<FontMeta> | null;
-    ydoc: Y.Doc | null;
-    nStyles?: number;
-  }) => {
-    const firstStyle = fontGroup.styles[0]
-      ? { ...fontGroup.styles[0], styles: [] }
-      : undefined;
-    const moreCount = fontGroup.styles.length - 1;
-    const moreStyles = fontGroup.styles
-      .slice(1)
-      .map((s) => ({ ...s, styles: [] }));
-    const [open, setOpen] = React.useState(false);
-    return (
-      <div className="flex flex-col gap-2 mb-2 w-full min-h-[175px]">
-        <div className="flex flex-col items-center gap-2 w-full">
-          {firstStyle && (
-            <FontMetaCard font={firstStyle} yfonts={yfonts} ydoc={ydoc} />
-          )}
-          {moreCount > 0 && (
-            <Accordion.Root
-              value={open ? ["more"] : []}
-              onValueChange={(v) =>
-                setOpen(Array.isArray(v) && v.includes("more"))
-              }
-              className="flex-1 w-full"
-            >
-              <Accordion.Item value="more" className="border-0 p-0 m-0 w-full">
-                <Accordion.Header className="p-0 m-0">
-                  <Accordion.Trigger className="group flex items-center gap-1 bg-transparent p-0 m-0 text-xs text-gray-500 ml-2 hover:underline">
-                    +{moreCount} more…
-                    <PlusIcon className="size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
-                  </Accordion.Trigger>
-                </Accordion.Header>
-                <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-visible p-0 m-0">
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {moreStyles.map((styleFont, idx) => (
-                      <FontMetaCard
-                        key={styleFont.postscriptName + idx}
-                        font={styleFont}
-                        yfonts={yfonts}
-                        ydoc={ydoc}
-                      />
-                    ))}
-                  </div>
-                </Accordion.Panel>
-              </Accordion.Item>
-            </Accordion.Root>
-          )}
-        </div>
-      </div>
-    );
-  },
-  (prevProps, nextProps) => {
-    // Only re-render if favorites have changed
-    const prevFavorites = new Set(
-      prevProps.fontGroup.styles.map((s) => s.favorite)
-    );
-    const nextFavorites = new Set(
-      nextProps.fontGroup.styles.map((s) => s.favorite)
-    );
-    return (
-      prevFavorites.size === nextFavorites.size &&
-      Array.from(prevFavorites).every((f) => nextFavorites.has(f))
-    );
-  }
-);
-
-FontFamilyCard.displayName = "FontFamilyCard";
-
-const FontMetaCard = React.memo(
-  function FontMetaCard({
-    font,
-    yfonts,
-    ydoc,
-  }: {
-    font: FontMeta;
-    yfonts: Y.Array<FontMeta> | null;
-    ydoc: Y.Doc | null;
-  }) {
-    const { textRef, containerRef, fontSize } = useFitText({
-      minFontSize: 10,
-      deps: [font.family],
-    });
-    return (
-      <div
-        className="border rounded p-2 flex flex-col gap-1 min-w-[220px] w-full min-h-[275px]"
-        ref={containerRef}
-      >
-        <div className="flex items-center gap-2 justify-between">
-          <div className="text-xs opacity-80">{font.fullName}</div>
-          <Toggle
-            aria-label="Favorite"
-            pressed={font.favorite ?? false}
-            onPressedChange={() => {
-              if (yfonts && ydoc) {
-                toggleFavorite({ yfonts, ydoc, font });
-              }
-            }}
-            className="flex size-8 items-center justify-center rounded-sm text-gray-100 select-none  focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800  data-[pressed]:text-white"
-            render={(props, state) =>
-              state.pressed ? (
-                <button type="button" {...props}>
-                  <HeartFilledIcon className="size-5" />
-                </button>
-              ) : (
-                <button type="button" {...props}>
-                  <HeartOutlineIcon className="size-5" />
-                </button>
-              )
-            }
-          />
-        </div>
-
-        <div
-          className="mt-2 mb-1"
-          style={{
-            containerType: "inline-size",
-          }}
-        >
-          <div
-            ref={textRef}
-            data-scale-width="true"
-            style={{
-              whiteSpace: "nowrap",
-              display: "block",
-              fontFamily: font.family,
-              fontSize: fontSize ? `${fontSize}px` : undefined,
-              padding: 8,
-              borderRadius: 4,
-            }}
-          >
-            The quick brown fox jumps over the lazy dog
-          </div>
-        </div>
-      </div>
-    );
-  },
-  (prevProps, nextProps) => {
-    return prevProps.font.favorite === nextProps.font.favorite;
-  }
-);
