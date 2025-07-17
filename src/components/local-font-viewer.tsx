@@ -261,7 +261,7 @@ export const LocalFontViewer = () => {
         // If nothing is focused, focus the first visible card
         if (currentIndex === -1) {
           const vlistRef = tab === "favorites" ? favVListRef : allVListRef;
-          const firstVisible = vlistRef.current?.findEndIndex() ?? 0;
+          const firstVisible = vlistRef.current?.findStartIndex() ?? 0;
           if (currentRefs[firstVisible]?.current) {
             currentRefs[firstVisible].current.focus();
           }
@@ -285,7 +285,6 @@ export const LocalFontViewer = () => {
         const currentIndex = currentRefs.findIndex(
           (ref) => ref.current === document.activeElement
         );
-        // If nothing is focused, focus the first visible card
         if (currentIndex === -1) {
           const vlistRef = tab === "favorites" ? favVListRef : allVListRef;
           const firstVisible = vlistRef.current?.findEndIndex() ?? 0;
@@ -320,6 +319,14 @@ export const LocalFontViewer = () => {
             ydoc,
             font: tab === "favorites" ? fontGroup : fontGroup.styles[0],
           });
+
+          const nextIndex = Math.min(currentRefs.length - 1, currentIndex + 1);
+          const prevIndex = Math.max(0, currentIndex - 1);
+          if (nextIndex !== currentIndex) {
+            currentRefs[nextIndex]?.current?.focus();
+          } else if (prevIndex !== currentIndex) {
+            currentRefs[prevIndex]?.current?.focus();
+          }
         }
       },
     },
