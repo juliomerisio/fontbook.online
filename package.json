@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@base-ui-components/react": "1.0.0-beta.1",
+    "@rive-app/react-webgl2": "^4.22.1",
     "mousetrap": "^1.6.5",
     "next": "15.4.1",
     "nuqs": "^2.4.3",

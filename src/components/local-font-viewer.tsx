@@ -20,11 +20,18 @@ import { useMousetrap } from "@/hooks/use-mouse-trap";
 import { ExtendedKeyboardEvent } from "mousetrap";
 import { FontFamilyCard, FontMetaCard } from "./font-meta-card";
 import { useMergeRefs } from "@/hooks/use-merge-refs";
+import Image from "next/image";
+import { Rive } from "./rive";
 
 const NotSupported = () => {
   return (
-    <div className="text-yellow-600">
-      Local Font Access API is not supported in this browser.
+    <div className="flex flex-col h-[100vh] items-center justify-center bg-background">
+      <div className="flex flex-col items-center justify-center">
+        <div className="min-w-[300px]  flex h-[300px]">
+          <Rive src="/logo.riv" />
+        </div>
+        <div>Local Font Access API is not supported in this browser.</div>
+      </div>
     </div>
   );
 };
@@ -32,24 +39,34 @@ const NotSupported = () => {
 const PermissionDenied = ({ loadAllFonts }: { loadAllFonts: () => void }) => {
   return (
     <div className="flex flex-col h-[100vh] items-center justify-center bg-background">
-      <button
-        className="text-balance"
-        onClick={() => {
-          loadAllFonts();
-        }}
-      >
-        Allow font permissions
-        <br />
-        to browse your local fonts in your browser
-      </button>
+      <div className="flex flex-col  items-center justify-center ">
+        <div className="min-w-[300px]  flex h-[300px]">
+          <Rive src="/logo.riv" />
+        </div>
+        <button
+          className="text-balance"
+          onClick={() => {
+            loadAllFonts();
+          }}
+        >
+          Allow font permissions
+          <br />
+          to browse your local fonts in your browser
+        </button>
+      </div>
     </div>
   );
 };
 
 const EmptyStateFavorites = () => {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-background">
-      <div>No favorites yet</div>
+    <div className="flex flex-col flex-1  items-center justify-center bg-background">
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <div className="min-w-[300px]  flex h-[300px]">
+          <Rive src="/logo.riv" />
+        </div>
+        <div>No favorites yet</div>
+      </div>
     </div>
   );
 };
@@ -421,16 +438,21 @@ export const LocalFontViewer = () => {
         }}
         className="rounded-md relative"
       >
-        <div className="flex gap-2 absolute top-0 w-full justify-center items-center bg-background">
-          {/* <button
-            onClick={loadAllFonts}
-            disabled={snapshot.loading}
-            className="border px-2 py-1 rounded"
-          >
-            Load All Fonts
-          </button> */}
+        <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-dashed border-foreground/10">
+          <Image
+            priority
+            src="/logo.webp"
+            alt="Local Font Viewer"
+            width={50}
+            height={50}
+            onClick={() => {
+              allVListRef.current?.scrollTo(0);
+              favVListRef.current?.scrollTo(0);
+            }}
+            className=" cursor-pointer"
+          />
 
-          <Tabs.List className="relative z-0 flex gap-1   px-1">
+          <Tabs.List className="relative z-0 flex justify-center gap-1 items-center  w-fit px-1">
             <Tabs.Tab
               value="all"
               className="flex h-12 w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/40 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground"
@@ -446,11 +468,12 @@ export const LocalFontViewer = () => {
 
             <Tabs.Indicator className="absolute top-1/2 left-0 z-[-1] h-8 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-sm bg-foreground/10 transition-all duration-200 ease-in-out" />
           </Tabs.List>
+          <div className="w-10" />
         </div>
 
         <Tabs.Panel
           value="all"
-          className="h-full flex flex-col flex-1 min-h-[100vh] pt-12 max-w-7xl mx-auto"
+          className="h-full flex flex-col flex-1 min-h-[100vh] pt-[66px] max-w-7xl mx-auto border-l border-r border-dashed border-foreground/10 "
         >
           <RestorableList
             id="all-fonts"
@@ -482,7 +505,7 @@ export const LocalFontViewer = () => {
 
         <Tabs.Panel
           value="favorites"
-          className="h-full flex flex-col flex-1 min-h-[100vh] pt-12 max-w-7xl mx-auto"
+          className="h-full flex flex-col flex-1 min-h-[100vh] pt-[66px] max-w-7xl mx-auto border-l border-r border-dashed border-foreground/10 "
         >
           {favoritesList.length > 0 && (
             <RestorableList
