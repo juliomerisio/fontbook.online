@@ -322,10 +322,13 @@ export const LocalFontViewer = () => {
 
           const nextIndex = Math.min(currentRefs.length - 1, currentIndex + 1);
           const prevIndex = Math.max(0, currentIndex - 1);
-          if (nextIndex !== currentIndex) {
-            currentRefs[nextIndex]?.current?.focus();
-          } else if (prevIndex !== currentIndex) {
-            currentRefs[prevIndex]?.current?.focus();
+
+          if (tab === "favorites") {
+            if (nextIndex !== currentIndex) {
+              currentRefs[nextIndex]?.current?.focus();
+            } else if (prevIndex !== currentIndex) {
+              currentRefs[prevIndex]?.current?.focus();
+            }
           }
         }
       },
