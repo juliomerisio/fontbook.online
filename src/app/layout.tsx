@@ -37,7 +37,7 @@ export const metadata: Metadata = {
       "Preview your local fonts in the browser. Fast, private, and easy font viewer for designers and developers.",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Font Book Online – Local Font Preview & Manager",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: "Font Book Online – Local Font Preview & Manager",
     description:
       "Preview your local fonts in the browser. Fast, private, and easy font viewer for designers and developers.",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
