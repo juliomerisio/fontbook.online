@@ -11,11 +11,14 @@
   "dependencies": {
     "@base-ui-components/react": "1.0.0-beta.1",
     "@rive-app/react-webgl2": "^4.22.1",
+    "clsx": "^2.1.1",
+    "lodash.defaultsdeep": "^4.6.1",
     "mousetrap": "^1.6.5",
     "next": "15.4.1",
     "nuqs": "^2.4.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "tailwind-merge": "^3.3.1",
     "valtio": "^2.1.5",
     "valtio-yjs-read-only": "^0.5.2",
     "virtua": "^0.41.5",
@@ -26,6 +29,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/lodash.defaultsdeep": "^4.6.9",
     "@types/mousetrap": "^1.6.15",
     "@types/node": "^20",
     "@types/react": "^19",
