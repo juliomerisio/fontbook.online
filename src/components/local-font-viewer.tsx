@@ -246,6 +246,17 @@ export const LocalFontViewer = () => {
   const favVListRef = React.useRef<VListHandle | null>(null);
 
   useMousetrap([
+    {
+      keys: ["command+backspace"],
+      callback: (e: ExtendedKeyboardEvent) => {
+        e.preventDefault();
+        clearCache();
+        lastFocusedIndexRef.current = {
+          all: 0,
+          favorites: 0,
+        };
+      },
+    },
     //TODO: this still not 100% - need further debugging
     // Navigation: ArrowDown, j, J
     {
@@ -346,16 +357,13 @@ export const LocalFontViewer = () => {
   if (snapshot.loading) {
     return (
       <div className="flex gap-2 mb-2">
-        <button
+        {/* <button
           onClick={loadAllFonts}
           disabled={snapshot.loading}
           className="border px-2 py-1 rounded"
         >
           Load All Fonts
-        </button>
-        <button onClick={clearCache} className="border px-2 py-1 rounded">
-          Clear All Fonts
-        </button>
+        </button> */}
       </div>
     );
   }
@@ -402,39 +410,36 @@ export const LocalFontViewer = () => {
         }}
         className="rounded-md relative"
       >
-        <div className="flex gap-2 absolute top-0">
-          <button
+        <div className="flex gap-2 absolute top-0 w-full justify-center items-center bg-background">
+          {/* <button
             onClick={loadAllFonts}
             disabled={snapshot.loading}
             className="border px-2 py-1 rounded"
           >
             Load All Fonts
-          </button>
-          <button onClick={clearCache} className="border px-2 py-1 rounded">
-            Clear All Fonts
-          </button>
+          </button> */}
 
-          <Tabs.List className="relative z-0 flex gap-1 px-1">
+          <Tabs.List className="relative z-0 flex gap-1   px-1">
             <Tabs.Tab
               value="all"
-              className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-100 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-white focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
+              className="flex h-12 w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/40 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground"
             >
               All
             </Tabs.Tab>
             <Tabs.Tab
               value="favorites"
-              className="flex h-8 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-gray-100 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-white focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-gray-900"
+              className="flex h-12 w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/40 outline-none select-none before:inset-x-0 before:inset-y-1 before:rounded-sm before:-outline-offset-1 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground"
             >
               Favorites
             </Tabs.Tab>
 
-            <Tabs.Indicator className="absolute top-1/2 left-0 z-[-1] h-6 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-sm bg-gray-100 transition-all duration-200 ease-in-out" />
+            <Tabs.Indicator className="absolute top-1/2 left-0 z-[-1] h-8 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-sm bg-foreground/10 transition-all duration-200 ease-in-out" />
           </Tabs.List>
         </div>
 
         <Tabs.Panel
           value="all"
-          className="h-full flex flex-col flex-1 min-h-[100vh] pt-10"
+          className="h-full flex flex-col flex-1 min-h-[100vh] pt-12 max-w-7xl mx-auto"
         >
           <RestorableList
             id="all-fonts"
@@ -444,7 +449,7 @@ export const LocalFontViewer = () => {
                 key={fontGroup.family + index}
                 ref={cardRefs[index]}
                 tabIndex={0}
-                className="font-card"
+                className="font-card group focus-visible:bg-foreground/5"
               >
                 <FontFamilyCard
                   fontGroup={fontGroup}
@@ -462,7 +467,7 @@ export const LocalFontViewer = () => {
 
         <Tabs.Panel
           value="favorites"
-          className="h-full flex flex-col flex-1 min-h-[100vh] pt-10"
+          className="h-full flex flex-col flex-1 min-h-[100vh] pt-12 max-w-7xl mx-auto"
         >
           <RestorableList
             id="favorites-fonts"
@@ -472,7 +477,7 @@ export const LocalFontViewer = () => {
                 key={font.postscriptName}
                 ref={favoritesCardRefs[index]}
                 tabIndex={0}
-                className="font-card"
+                className="font-card group focus-visible:bg-foreground/5"
               >
                 <FontMetaCard font={font} yfonts={yfonts} ydoc={ydoc} />
               </div>
