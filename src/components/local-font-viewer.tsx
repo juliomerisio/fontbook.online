@@ -29,10 +29,27 @@ const NotSupported = () => {
   );
 };
 
-const PermissionDenied = () => {
+const PermissionDenied = ({ loadAllFonts }: { loadAllFonts: () => void }) => {
   return (
-    <div className="text-red-600">
-      Local Font Access API is denied. Please allow access in your browser.
+    <div className="flex flex-col h-[100vh] items-center justify-center bg-background">
+      <button
+        className="text-balance"
+        onClick={() => {
+          loadAllFonts();
+        }}
+      >
+        Allow font permissions
+        <br />
+        to browse your local fonts in your browser
+      </button>
+    </div>
+  );
+};
+
+const EmptyStateFavorites = () => {
+  return (
+    <div className="flex flex-col flex-1 items-center justify-center bg-background">
+      <div>No favorites yet</div>
     </div>
   );
 };
@@ -355,17 +372,7 @@ export const LocalFontViewer = () => {
   ]);
 
   if (snapshot.loading) {
-    return (
-      <div className="flex gap-2 mb-2">
-        {/* <button
-          onClick={loadAllFonts}
-          disabled={snapshot.loading}
-          className="border px-2 py-1 rounded"
-        >
-          Load All Fonts
-        </button> */}
-      </div>
-    );
+    return <div className="flex gap-2 mb-2"></div>;
   }
 
   if (supportAndPermissionStatus === "not-supported") {
@@ -373,7 +380,11 @@ export const LocalFontViewer = () => {
   }
 
   if (supportAndPermissionStatus === "denied") {
-    return <PermissionDenied />;
+    return <PermissionDenied loadAllFonts={loadAllFonts} />;
+  }
+
+  if (snapshot.error) {
+    return <PermissionDenied loadAllFonts={loadAllFonts} />;
   }
 
   return (
@@ -458,7 +469,11 @@ export const LocalFontViewer = () => {
                 />
               </div>
             )}
-            style={{ flex: 1, scrollbarWidth: "none", msOverflowStyle: "none" }}
+            style={{
+              flex: 1,
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
             overscan={5}
             className="overflow-x-hidden"
             vlistRef={allVListRef}
@@ -469,24 +484,31 @@ export const LocalFontViewer = () => {
           value="favorites"
           className="h-full flex flex-col flex-1 min-h-[100vh] pt-12 max-w-7xl mx-auto"
         >
-          <RestorableList
-            id="favorites-fonts"
-            data={favoritesList}
-            renderRow={(font, index) => (
-              <div
-                key={font.postscriptName}
-                ref={favoritesCardRefs[index]}
-                tabIndex={0}
-                className="font-card group focus-visible:bg-foreground/5"
-              >
-                <FontMetaCard font={font} yfonts={yfonts} ydoc={ydoc} />
-              </div>
-            )}
-            style={{ flex: 1, scrollbarWidth: "none", msOverflowStyle: "none" }}
-            overscan={5}
-            className="overflow-x-hidden"
-            vlistRef={favVListRef}
-          />
+          {favoritesList.length > 0 && (
+            <RestorableList
+              id="favorites-fonts"
+              data={favoritesList}
+              renderRow={(font, index) => (
+                <div
+                  key={font.postscriptName}
+                  ref={favoritesCardRefs[index]}
+                  tabIndex={0}
+                  className="font-card group focus-visible:bg-foreground/5"
+                >
+                  <FontMetaCard font={font} yfonts={yfonts} ydoc={ydoc} />
+                </div>
+              )}
+              style={{
+                flex: 1,
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+              overscan={5}
+              className="overflow-x-hidden"
+              vlistRef={favVListRef}
+            />
+          )}
+          {favoritesList.length === 0 && <EmptyStateFavorites />}
         </Tabs.Panel>
       </Tabs.Root>
     </div>
