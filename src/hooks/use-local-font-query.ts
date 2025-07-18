@@ -71,7 +71,7 @@ export interface useLocalFontQueryType {
   loadAllFonts: () => Promise<FontData[]>;
   getFontData: (postscriptName: string) => Promise<Blob>;
   supportAndPermissionStatus: () => Promise<
-    "granted" | "denied" | "not-supported"
+    "granted" | "denied" | "not-supported" | "prompt"
   >;
   isMonospace: (ctx: CanvasRenderingContext2D, fontName: string) => boolean;
   parseFontStyleToWeight: (style: string) => number;
@@ -98,6 +98,10 @@ export function useLocalFontQuery(): useLocalFontQueryType {
     if (permission.state === "denied") {
       return "denied";
     }
+    if (permission.state === "prompt") {
+      return "prompt";
+    }
+
     return "granted";
   }, []);
 

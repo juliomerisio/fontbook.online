@@ -55,7 +55,21 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
       if (supportAndPermissionStatusRef.current === "granted") {
         const fontList = await fontQuery.loadAllFonts();
         persistFontsToYjs(fontList);
+        return;
       }
+
+      if (supportAndPermissionStatusRef.current === "prompt") {
+        const fontList = await fontQuery.loadAllFonts();
+        if (fontList.length === 0) {
+          stateRef.current.error = "No fonts found";
+          return;
+        }
+
+        persistFontsToYjs(fontList);
+        return;
+      }
+
+      throw new Error("Font permissions denied");
     } catch (err: unknown) {
       stateRef.current.error =
         err instanceof Error ? err.message : "Unknown error";

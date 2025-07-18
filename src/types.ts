@@ -33,6 +33,10 @@ export interface FontData extends FontMeta {
   blob: () => Promise<Blob>;
 }
 
-export type FontPermissionStatus = "granted" | "denied" | "not-supported";
+export type FontPermissionStatus =
+  | "granted"
+  | "denied"
+  | "not-supported"
+  | "prompt";
 
 export type FavoritesState = Record<string, boolean>;

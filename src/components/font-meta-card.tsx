@@ -4,7 +4,7 @@ import * as React from "react";
 import { FontMeta } from "@/types";
 import { toggleFavorite } from "@/store/font-store";
 import { Toggle } from "@base-ui-components/react/toggle";
-import { HeartFilledIcon, HeartOutlineIcon, PlusIcon } from "@/icons/icons";
+import { HeartFilledIcon, HeartOutlineIcon } from "@/icons/icons";
 import { Accordion } from "@base-ui-components/react/accordion";
 
 export const FontMetaCard = React.memo(
@@ -23,7 +23,7 @@ export const FontMetaCard = React.memo(
     });
     return (
       <div
-        className="border-b  p-2 flex flex-col gap-1 min-w-[220px] w-full min-h-[275px]"
+        className="border-b-[0.5px] border-foreground/10  p-2 flex flex-col gap-1 min-w-[220px] w-full min-h-[226px]"
         ref={containerRef}
       >
         <div className="flex items-center gap-2 justify-between">
@@ -36,7 +36,7 @@ export const FontMetaCard = React.memo(
                 toggleFavorite({ yfonts, ydoc, font });
               }
             }}
-            className="flex size-8 items-center justify-center rounded-sm text-gray-100 select-none  focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800  data-[pressed]:text-white"
+            className="flex size-8 items-center justify-center rounded-sm text-foreground/40 select-none   group-focus-within:text-foreground focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800  data-[pressed]:text-foreground"
             render={(props, state) =>
               state.pressed ? (
                 <button type="button" {...props}>
@@ -71,6 +71,7 @@ export const FontMetaCard = React.memo(
           >
             The quick brown fox jumps over the lazy dog
           </div>
+          <div className="text-xs opacity-80"></div>
         </div>
       </div>
     );
@@ -114,11 +115,10 @@ export const FontFamilyCard = React.memo(
             >
               <Accordion.Item value="more" className="border-0 p-0 m-0 w-full">
                 <Accordion.Header className="p-0 m-0">
-                  <Accordion.Trigger className="absolute bottom-5 left-1/2 -translate-x-1/2 group flex items-center gap-1 bg-transparent p-0 m-0 text-xs text-gray-500 hover:underline">
+                  <Accordion.Trigger className="absolute bottom-5 left-1/2 -translate-x-1/2 group flex items-center gap-1 bg-transparent p-0 m-0 text-xs hover:underline text-foreground/40 before:absolute before:inset-0 before:content-['']">
                     {open
                       ? "Collapse" + " " + fontGroup.family
-                      : `+${moreCount} more…`}
-                    <PlusIcon className="size-3 shrink-0 transition-all ease-out  group-data-[panel-open]:rotate-45" />
+                      : `+${moreCount} ${moreCount > 1 ? "styles" : "style"}`}
                   </Accordion.Trigger>
                 </Accordion.Header>
                 <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-visible p-0 m-0">
