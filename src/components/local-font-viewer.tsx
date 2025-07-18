@@ -8,7 +8,12 @@ import {
   useCallback,
 } from "react";
 import { useLocalFonts } from "@/hooks/use-local-fonts";
-import { fonts, uiState, toggleFavorite } from "@/store/font-store";
+import {
+  fonts,
+  uiState,
+  toggleFavorite,
+  persistFavoriteOrder,
+} from "@/store/font-store";
 import { useSnapshot } from "valtio";
 import * as React from "react";
 import { Tabs } from "@base-ui-components/react/tabs";
@@ -201,7 +206,15 @@ export const LocalFontViewer = () => {
     if (tab !== "favorites") return [];
     return groupedFonts
       .flatMap((group) => group.styles.filter((style) => style.favorite))
-      .map((font) => ({ ...font, styles: [] }));
+      .map((font) => ({ ...font, styles: [] }))
+      .sort((a, b) => {
+        if (a.favoriteOrder != null && b.favoriteOrder != null) {
+          return a.favoriteOrder - b.favoriteOrder;
+        }
+        if (a.favoriteOrder != null) return -1;
+        if (b.favoriteOrder != null) return 1;
+        return 0;
+      });
   }, [groupedFonts, tab]);
 
   const filteredGroupedFonts = React.useMemo(() => {
@@ -222,6 +235,9 @@ export const LocalFontViewer = () => {
     () => favoritesList.map(() => React.createRef<HTMLDivElement>()),
     [favoritesList]
   );
+
+  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
 
   // Throttle for navigation keys
   const THROTTLE_MS = 80;
@@ -493,7 +509,33 @@ export const LocalFontViewer = () => {
                   key={font.postscriptName}
                   ref={favoritesCardRefs[index]}
                   tabIndex={0}
-                  className="font-card group focus-visible:bg-foreground/5"
+                  className={`font-card group focus-visible:bg-foreground/5 cursor-grab ${
+                    draggedIndex === index ? "opacity-50" : ""
+                  } ${dragOverIndex === index ? "ring-2 ring-blue-400" : ""}`}
+                  draggable
+                  onDragStart={() => {
+                    setDraggedIndex(index);
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOverIndex(index);
+                  }}
+                  onDragLeave={() => setDragOverIndex(null)}
+                  onDrop={() => {
+                    if (draggedIndex == null || draggedIndex === index) return;
+                    const newOrder = [...favoritesList];
+                    const [removed] = newOrder.splice(draggedIndex, 1);
+                    newOrder.splice(index, 0, removed);
+                    if (yfonts && ydoc) {
+                      persistFavoriteOrder(newOrder, yfonts, ydoc);
+                    }
+                    setDraggedIndex(null);
+                    setDragOverIndex(null);
+                  }}
+                  onDragEnd={() => {
+                    setDraggedIndex(null);
+                    setDragOverIndex(null);
+                  }}
                 >
                   <FontMetaCard font={font} yfonts={yfonts} ydoc={ydoc} />
                 </div>

@@ -14,6 +14,7 @@ export const FontMetaSchema = z.object({
   family: z.string(),
   style: z.string(),
   favorite: z.boolean().optional().default(false),
+  favoriteOrder: z.number().optional(),
   styles: z
     .array(
       z.object({
@@ -22,6 +23,7 @@ export const FontMetaSchema = z.object({
         family: z.string(),
         style: z.string(),
         favorite: z.boolean().optional().default(false),
+        favoriteOrder: z.number().optional(),
       })
     )
     .optional()

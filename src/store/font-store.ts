@@ -39,3 +39,26 @@ export function toggleFavorite({
     }
   }
 }
+
+export const persistFavoriteOrder = (
+  newOrder: FontMeta[],
+  yfonts: Y.Array<FontMeta>,
+  ydoc: Y.Doc
+) => {
+  if (!yfonts || !ydoc) return;
+  const orderMap = new Map(
+    newOrder.map((font, idx) => [font.postscriptName, idx])
+  );
+  ydoc.transact(() => {
+    for (let i = 0; i < yfonts.length; i++) {
+      const font = yfonts.get(i);
+      if (font.favorite) {
+        const newOrderIdx = orderMap.get(font.postscriptName);
+        if (newOrderIdx !== undefined && font.favoriteOrder !== newOrderIdx) {
+          yfonts.delete(i, 1);
+          yfonts.insert(i, [{ ...font, favoriteOrder: newOrderIdx }]);
+        }
+      }
+    }
+  });
+};
