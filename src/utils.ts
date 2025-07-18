@@ -1,3 +1,6 @@
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
 const ORIGINAL_TEXT_KEY = Symbol("fitTextOriginalText");
 
 type FitTextHTMLElement = HTMLElement & { [ORIGINAL_TEXT_KEY]?: string };
@@ -104,4 +107,11 @@ export default function fitText({
     text: el.innerHTML,
     fontSize: fontSizeTry + 1,
   };
+}
+
+
+
+ 
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
