@@ -11,6 +11,10 @@ const SHORTCUTS = [
     description: "Move focus to next font",
   },
   {
+    keys: ["Space"],
+    description: "When in Favorites tab, activate drag mode to reorder fonts",
+  },
+  {
     keys: ["r"],
     description: "Shuffle font styles",
   },

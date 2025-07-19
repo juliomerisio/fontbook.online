@@ -66,10 +66,12 @@ export const FontMetaCard = React.memo(
             render={(props, state) =>
               state.pressed ? (
                 <button type="button" {...props}>
+                  <span className="sr-only">Remove from favorites</span>
                   <BookmarkFilledIcon className="size-5" />
                 </button>
               ) : (
                 <button type="button" {...props}>
+                  <span className="sr-only">Add to favorites</span>
                   <BookmarkIcon className="size-5" />
                 </button>
               )
@@ -128,7 +130,7 @@ export const FontFamilyCard = React.memo(
     const moreStyles = fontGroup.styles
       .slice(1)
       .map((s) => ({ ...s, styles: [] }));
-    console.log(fontGroup.family, moreStyles);
+
     const [open, setOpen] = React.useState(false);
     return (
       <div className="flex flex-col gap-2 w-full min-h-[175px] relative">

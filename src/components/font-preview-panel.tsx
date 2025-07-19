@@ -41,7 +41,7 @@ const getFontStyles = (font: Omit<FontMeta, "styles">) => {
   };
 };
 
-export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
+export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
   const [selectedStyle, setSelectedStyle] = React.useState<string | null>(null);
 
   // Get all unique styles
@@ -87,7 +87,7 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
   if (!font) {
     return (
       <div
-        className="hidden xl:flex w-[420px] min-w-[320px] max-w-[480px] bg-background text-foreground  flex-col h-[100dvh] overflow-hidden relative"
+        className="hidden xl:flex w-[420px] min-w-[320px] max-w-[480px] bg-background text-foreground flex-col h-[100dvh] overflow-hidden relative"
         tabIndex={-1}
         aria-modal="true"
         role="dialog"
