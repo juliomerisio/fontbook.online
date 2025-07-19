@@ -4,6 +4,8 @@
   --background: oklch(0.9252 0.0094 62.58);
   --foreground:oklch(0.1559 0.0074 102.71);
   --accent: #FFA112;
+  --border-dashed: oklch(0.25 0.0074 102.71 / 1); /* darker than foreground/10 */
+
 }
 
 @theme inline {
@@ -12,15 +14,18 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-accent: var(--accent);
+  --color-dashed: var(--border-dashed);
   
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-  color-scheme: dark;
-  --background: oklch(0.1559 0.0074 102.71);
-  --foreground:oklch(0.9252 0.0094 62.58);
-  --accent: #FFA112;
+    color-scheme: dark;
+    --background: oklch(0.1559 0.0074 102.71);
+    --foreground: oklch(0.9252 0.0094 62.58);
+    --accent: #FFA112;
+    --border-dashed: oklch(0.7 0.0094 62.58 / 1); /* darker for dark mode */
+
   }
 }
 
