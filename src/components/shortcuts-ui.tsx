@@ -203,7 +203,7 @@ export const KeySymbol = ({
       }}
       {...otherProps}
     >
-      <span className="w-full text-center">{symbol}</span>
+      <span className="w-full text-center font-mono">{symbol}</span>
     </div>
   );
 
