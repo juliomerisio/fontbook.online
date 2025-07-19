@@ -211,7 +211,7 @@ export const KeySymbol = ({
 
   return (
     <Tooltip.Root>
-      <Tooltip.Trigger>{keyContent}</Tooltip.Trigger>
+      <Tooltip.Trigger className="ring-0">{keyContent}</Tooltip.Trigger>
       <Tooltip.Portal>
         <Tooltip.Positioner sideOffset={10}>
           <Tooltip.Popup className="flex z-50 origin-[var(--transform-origin)] flex-col rounded-md px-2 py-1 text-sm bg-background text-foreground border border-foreground/10 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[instant]:duration-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">

@@ -4,7 +4,7 @@ import * as React from "react";
 import { FontMeta } from "@/types";
 import { toggleFavorite } from "@/store/font-store";
 import { Toggle } from "@base-ui-components/react/toggle";
-import { HeartFilledIcon, HeartOutlineIcon } from "@/icons/icons";
+import { BookmarkFilledIcon, BookmarkIcon } from "@/icons/icons";
 import { Accordion } from "@base-ui-components/react/accordion";
 
 export const FontMetaCard = React.memo(
@@ -12,10 +12,14 @@ export const FontMetaCard = React.memo(
     font,
     yfonts,
     ydoc,
+    fontWeightLabels,
+    parseFontStyleToWeight,
   }: {
     font: FontMeta;
     yfonts: Y.Array<FontMeta> | null;
     ydoc: Y.Doc | null;
+    fontWeightLabels: Record<string, string>;
+    parseFontStyleToWeight: (style: string) => number;
   }) {
     const { textRef, containerRef, fontSize } = useFitText({
       minFontSize: 10,
@@ -36,15 +40,15 @@ export const FontMetaCard = React.memo(
                 toggleFavorite({ yfonts, ydoc, font });
               }
             }}
-            className="flex size-8 items-center justify-center rounded-sm text-foreground/40 select-none   group-focus-within:text-foreground focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800  data-[pressed]:text-foreground"
+            className="flex cursor-pointer size-8 items-center justify-center rounded-sm text-foreground/40 select-none   hover:text-foreground focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800  data-[pressed]:text-foreground"
             render={(props, state) =>
               state.pressed ? (
                 <button type="button" {...props}>
-                  <HeartFilledIcon className="size-5" />
+                  <BookmarkFilledIcon className="size-5" />
                 </button>
               ) : (
                 <button type="button" {...props}>
-                  <HeartOutlineIcon className="size-5" />
+                  <BookmarkIcon className="size-5" />
                 </button>
               )
             }
@@ -71,7 +75,10 @@ export const FontMetaCard = React.memo(
           >
             The quick brown fox jumps over the lazy dog
           </div>
-          <div className="text-xs opacity-80"></div>
+          <div className="mt-2 text-xs opacity-50">
+            {fontWeightLabels[parseFontStyleToWeight(font.style)] ??
+              parseFontStyleToWeight(font.style)}
+          </div>
         </div>
       </div>
     );
@@ -86,10 +93,14 @@ export const FontFamilyCard = React.memo(
     fontGroup,
     yfonts,
     ydoc,
+    fontWeightLabels,
+    parseFontStyleToWeight,
   }: {
     fontGroup: FontMeta;
     yfonts: Y.Array<FontMeta> | null;
     ydoc: Y.Doc | null;
+    fontWeightLabels: Record<string, string>;
+    parseFontStyleToWeight: (style: string) => number;
   }) => {
     const firstStyle = fontGroup.styles[0]
       ? { ...fontGroup.styles[0], styles: [] }
@@ -103,7 +114,13 @@ export const FontFamilyCard = React.memo(
       <div className="flex flex-col gap-2 w-full min-h-[175px] relative">
         <div className="flex flex-col items-center w-full">
           {firstStyle && (
-            <FontMetaCard font={firstStyle} yfonts={yfonts} ydoc={ydoc} />
+            <FontMetaCard
+              font={firstStyle}
+              yfonts={yfonts}
+              ydoc={ydoc}
+              fontWeightLabels={fontWeightLabels}
+              parseFontStyleToWeight={parseFontStyleToWeight}
+            />
           )}
           {moreCount > 0 && (
             <Accordion.Root
@@ -115,7 +132,7 @@ export const FontFamilyCard = React.memo(
             >
               <Accordion.Item value="more" className="border-0 p-0 m-0 w-full">
                 <Accordion.Header className="p-0 m-0">
-                  <Accordion.Trigger className="absolute bottom-5 left-1/2 -translate-x-1/2 group flex items-center gap-1 bg-transparent p-0 m-0 text-xs hover:underline text-foreground/40 before:absolute before:inset-0 before:content-['']">
+                  <Accordion.Trigger className="cursor-pointer absolute bottom-5 left-1/2 -translate-x-1/2 group flex items-center gap-1 bg-transparent p-0 m-0 text-xs hover:underline text-foreground/40 before:absolute before:inset-0 before:content-['']">
                     {open
                       ? "Collapse" + " " + fontGroup.family
                       : `+${moreCount} ${moreCount > 1 ? "styles" : "style"}`}
@@ -129,6 +146,8 @@ export const FontFamilyCard = React.memo(
                         font={styleFont}
                         yfonts={yfonts}
                         ydoc={ydoc}
+                        fontWeightLabels={fontWeightLabels}
+                        parseFontStyleToWeight={parseFontStyleToWeight}
                       />
                     ))}
                   </div>
