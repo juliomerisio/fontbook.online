@@ -2,12 +2,17 @@ import * as React from "react";
 import { Dialog } from "@base-ui-components/react/dialog";
 import { ShortcutsProvider, KeyCombo, Keys } from "./shortcuts-ui";
 import { parseAsString, useQueryState } from "nuqs";
+import { useMousetrap } from "@/hooks/use-mouse-trap";
 
 const SHORTCUTS = [
   {
     keys: [Keys.ArrowDown],
     alt: ["j"],
     description: "Move focus to next font",
+  },
+  {
+    keys: ["r"],
+    description: "Shuffle font styles",
   },
   {
     keys: [Keys.ArrowUp],
@@ -33,6 +38,15 @@ export default function ShortcutsDialog() {
   const handleOpenChange = (open: boolean) => {
     setShowShortcuts(open ? "open" : "closed");
   };
+
+  useMousetrap([
+    {
+      keys: ["?"],
+      callback: () => {
+        setShowShortcuts("open");
+      },
+    },
+  ]);
 
   return (
     <Dialog.Root

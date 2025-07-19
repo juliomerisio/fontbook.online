@@ -19,10 +19,10 @@ import { VList, VListHandle } from "virtua";
 import { useMousetrap } from "@/hooks/use-mouse-trap";
 import { ExtendedKeyboardEvent } from "mousetrap";
 import { FontFamilyCard, FontMetaCard } from "./font-meta-card";
+import { FontGlyphPanel } from "./FontGlyphPanel";
 import { useMergeRefs } from "@/hooks/use-merge-refs";
 import Image from "next/image";
 import { Rive } from "./rive";
-import ShortcutsDialog from "./shortcuts-dialog";
 
 const NotSupported = () => {
   return (
@@ -131,10 +131,7 @@ export function RestorableList<T>({
       }
     };
   }, [offset, cacheKey]);
-
-  // Save offset before leaving page
   useEffect(() => {
-    // Capture ref.current in closure
     const currentRef = ref.current;
 
     const handleBeforeUnload = () => {
@@ -176,7 +173,6 @@ export const LocalFontViewer = () => {
     clearCache,
     yfonts,
     ydoc,
-    fontWeightLabels,
     parseFontStyleToWeight,
   } = useLocalFonts({
     fonts,
@@ -291,6 +287,13 @@ export const LocalFontViewer = () => {
 
   useMousetrap([
     {
+      keys: ["escape"],
+      callback: (e: ExtendedKeyboardEvent) => {
+        e.preventDefault();
+        setActiveFontPSName("");
+      },
+    },
+    {
       keys: ["command+backspace"],
       callback: (e: ExtendedKeyboardEvent) => {
         e.preventDefault();
@@ -301,7 +304,6 @@ export const LocalFontViewer = () => {
         };
       },
     },
-    //TODO: this still not 100% - need further debugging
     // Navigation: ArrowDown, j, J
     {
       keys: ["down", "j"],
@@ -327,6 +329,7 @@ export const LocalFontViewer = () => {
         if (next !== currentIndex) {
           currentRefs[next]?.current?.focus();
         }
+        setActiveFontPSName(currentList[next]?.postscriptName ?? "");
       },
     },
     // Navigation: ArrowUp, k, K
@@ -352,6 +355,7 @@ export const LocalFontViewer = () => {
         if (prev !== currentIndex) {
           currentRefs[prev]?.current?.focus();
         }
+        setActiveFontPSName(currentList[prev]?.postscriptName ?? "");
       },
     },
     // Toggle favorite
@@ -398,6 +402,12 @@ export const LocalFontViewer = () => {
     },
   ]);
 
+  // Query state for active font in panel
+  const [activeFontPSName, setActiveFontPSName] = useQueryState(
+    "glyphPanel",
+    parseAsString.withDefault("")
+  );
+
   if (snapshot.loading) {
     return <div className="flex gap-2 mb-2"></div>;
   }
@@ -415,131 +425,99 @@ export const LocalFontViewer = () => {
   }
 
   return (
-    <div style={{ minHeight: "100dvh" }}>
-      <Tabs.Root
-        value={tab}
-        onValueChange={(v) => {
-          // Save last focused index for previous tab
-          const prevTab = tab;
-          const prevRefs =
-            prevTab === "favorites" ? favoritesCardRefs : cardRefs;
-          const prevIndex = prevRefs.findIndex(
-            (ref) => ref.current === document.activeElement
-          );
-          if (prevIndex !== -1) {
-            lastFocusedIndexRef.current[prevTab] = prevIndex;
-            saveLastFocusedIndex(prevTab, prevIndex);
-            console.log(
-              "[Focus Debug] Saved last focused index",
-              prevTab,
-              prevIndex
+    <div className="min-h-[100dvh] flex flex-row">
+      <div className="flex-1 min-w-0 flex flex-col">
+        <Tabs.Root
+          value={tab}
+          onValueChange={(v) => {
+            // Save last focused index for previous tab
+            const prevTab = tab;
+            const prevRefs =
+              prevTab === "favorites" ? favoritesCardRefs : cardRefs;
+            const prevIndex = prevRefs.findIndex(
+              (ref) => ref.current === document.activeElement
             );
-          }
-          setTab(v);
+            if (prevIndex !== -1) {
+              lastFocusedIndexRef.current[prevTab] = prevIndex;
+              saveLastFocusedIndex(prevTab, prevIndex);
+              console.log(
+                "[Focus Debug] Saved last focused index",
+                prevTab,
+                prevIndex
+              );
+            }
+            setTab(v);
 
-          const idx = loadLastFocusedIndex(
-            v,
-            v === "favorites"
-              ? favoritesList.length
-              : filteredGroupedFonts.length
-          );
+            const idx = loadLastFocusedIndex(
+              v,
+              v === "favorites"
+                ? favoritesList.length
+                : filteredGroupedFonts.length
+            );
 
-          lastFocusedIndexRef.current[v] = idx;
-        }}
-        className="rounded-md relative"
-      >
-        <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-dashed border-foreground/10">
-          <div className="w-[90px]">
-            <Image
-              priority
-              src="/logo.webp"
-              alt="Local Font Viewer"
-              width={40}
-              height={40}
-              onClick={() => {
-                allVListRef.current?.scrollTo(0);
-                favVListRef.current?.scrollTo(0);
-              }}
-              className=" cursor-pointer"
-            />
-          </div>
-
-          <Tabs.List className="relative z-0 flex justify-center gap-1 items-center  w-fit  border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
-            <Tabs.Tab
-              value="all"
-              className="outline-none flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
-            >
-              All
-            </Tabs.Tab>
-            <Tabs.Tab
-              value="favorites"
-              className="outline-none flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
-            >
-              Favorites
-            </Tabs.Tab>
-
-            <Tabs.Indicator className="absolute top-1/2 left-0 z-[-1] h-8 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group  isolate before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transition-opacity before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay shadow-[0_1px_rgba(255,193,31,0.07)_inset,0_1px_3px_rgba(252,208,86,0.2)] bg-[var(--accent)] ring-1 ring-[var(--accent)]" />
-          </Tabs.List>
-
-          <div className="w-[90px]">
-            <ShortcutsDialog />
-          </div>
-        </div>
-
-        <Tabs.Panel
-          value="all"
-          className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] max-w-7xl mx-auto border-l border-r border-dashed border-foreground/10 "
+            lastFocusedIndexRef.current[v] = idx;
+          }}
+          className="rounded-md relative"
         >
-          <RestorableList
-            id="all-fonts"
-            data={filteredGroupedFonts}
-            renderRow={(fontGroup, index) => (
-              <div
-                key={fontGroup.family + index}
-                ref={cardRefs[index]}
-                tabIndex={0}
-                className="font-card group focus-visible:bg-foreground/5"
+          <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10">
+            <div className="w-[90px]">
+              <Image
+                priority
+                src="/logo.webp"
+                alt="Local Font Viewer"
+                width={40}
+                height={40}
+                onClick={() => {
+                  allVListRef.current?.scrollTo(0);
+                  favVListRef.current?.scrollTo(0);
+                }}
+                className=" cursor-pointer"
+              />
+            </div>
+
+            <Tabs.List className="relative z-0 flex justify-center gap-1 items-center  w-fit  border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
+              <Tabs.Tab
+                value="all"
+                className=" flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
               >
-                <FontFamilyCard
-                  fontGroup={fontGroup}
-                  yfonts={yfonts}
-                  ydoc={ydoc}
-                  fontWeightLabels={fontWeightLabels}
-                  parseFontStyleToWeight={parseFontStyleToWeight}
-                />
-              </div>
-            )}
-            style={{
-              flex: 1,
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-            }}
-            overscan={5}
-            className="overflow-x-hidden"
-            vlistRef={allVListRef}
-          />
-        </Tabs.Panel>
+                All
+              </Tabs.Tab>
+              <Tabs.Tab
+                value="favorites"
+                className=" flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
+              >
+                Favorites
+              </Tabs.Tab>
 
-        <Tabs.Panel
-          value="favorites"
-          className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] max-w-7xl mx-auto border-l border-r border-dashed border-foreground/10 "
-        >
-          {favoritesList.length > 0 && (
+              <Tabs.Indicator className="absolute top-1/2 left-0 z-[-1] h-8 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group  isolate before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transition-opacity before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay shadow-[0_1px_rgba(255,193,31,0.07)_inset,0_1px_3px_rgba(252,208,86,0.2)] bg-[var(--accent)] ring-1 ring-[var(--accent)]" />
+            </Tabs.List>
+
+            <div className="w-[90px]"></div>
+          </div>
+
+          <Tabs.Panel
+            value="all"
+            className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px]  mx-auto  border-[color:var(--border-dashed)] "
+          >
             <RestorableList
-              id="favorites-fonts"
-              data={favoritesList}
-              renderRow={(font, index) => (
+              id="all-fonts"
+              data={filteredGroupedFonts}
+              renderRow={(fontGroup, index) => (
                 <div
-                  key={font.postscriptName}
-                  ref={favoritesCardRefs[index]}
+                  key={fontGroup.family + index}
+                  ref={cardRefs[index]}
                   tabIndex={0}
                   className="font-card group focus-visible:bg-foreground/5"
+                  onFocus={() => {
+                    lastFocusedIndexRef.current[tab] = index;
+                    setActiveFontPSName(fontGroup.postscriptName);
+                  }}
                 >
-                  <FontMetaCard
-                    font={font}
+                  <FontFamilyCard
+                    fontGroup={fontGroup}
                     yfonts={yfonts}
                     ydoc={ydoc}
-                    fontWeightLabels={fontWeightLabels}
+                    // fontWeightLabels={fontWeightLabels}
                     parseFontStyleToWeight={parseFontStyleToWeight}
                   />
                 </div>
@@ -551,12 +529,62 @@ export const LocalFontViewer = () => {
               }}
               overscan={5}
               className="overflow-x-hidden"
-              vlistRef={favVListRef}
+              vlistRef={allVListRef}
             />
-          )}
-          {favoritesList.length === 0 && <EmptyStateFavorites />}
-        </Tabs.Panel>
-      </Tabs.Root>
+          </Tabs.Panel>
+
+          <Tabs.Panel
+            value="favorites"
+            className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] mx-auto   border-foreground/10  "
+          >
+            {favoritesList.length > 0 && (
+              <RestorableList
+                id="favorites-fonts"
+                data={favoritesList}
+                renderRow={(font, index) => (
+                  <div
+                    key={font.postscriptName}
+                    ref={favoritesCardRefs[index]}
+                    tabIndex={0}
+                    className="font-card group focus-visible:bg-foreground/5"
+                    onFocus={() => {
+                      lastFocusedIndexRef.current[tab] = index;
+                      setActiveFontPSName(font.postscriptName);
+                    }}
+                  >
+                    <FontMetaCard
+                      font={font}
+                      yfonts={yfonts}
+                      ydoc={ydoc}
+                      parseFontStyleToWeight={parseFontStyleToWeight}
+                    />
+                  </div>
+                )}
+                style={{
+                  flex: 1,
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
+                overscan={5}
+                className="overflow-x-hidden"
+                vlistRef={favVListRef}
+              />
+            )}
+            {favoritesList.length === 0 && <EmptyStateFavorites />}
+          </Tabs.Panel>
+        </Tabs.Root>
+      </div>
+      <FontGlyphPanel
+        font={
+          activeFontPSName
+            ? filteredGroupedFonts.find(
+                (g) =>
+                  g.postscriptName === activeFontPSName ||
+                  g.styles.some((s) => s.postscriptName === activeFontPSName)
+              ) || null
+            : null
+        }
+      />
     </div>
   );
 };
