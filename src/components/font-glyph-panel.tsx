@@ -5,7 +5,6 @@ import ShortcutsDialog from "./shortcuts-dialog";
 import { Radio } from "@base-ui-components/react/radio";
 import { RadioGroup } from "@base-ui-components/react/radio-group";
 import { useMousetrap } from "@/hooks/use-mouse-trap";
-import { GradientAnimationShader } from "./shader";
 
 const getFontStyles = (font: Omit<FontMeta, "styles">) => {
   const style = font.style.toLowerCase();
@@ -92,42 +91,10 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
         aria-modal="true"
         role="dialog"
       >
-        <GradientAnimationShader />
-
-        <div className="flex items-center justify-end h-[65px] border-b border-l border-foreground/10 px-4 z-10 "></div>
-        <div className="flex-1 w-full h-full border-l border-foreground/10 flex items-center justify-center z-10">
-          <div className="flex flex-col items-center justify-center max-w-[320px] text-center space-y-4">
-            <div className="w-16 h-16 rounded-lg bg-foreground dark:bg-foreground/5 flex items-center justify-center border border-foreground/10">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="opacity-80 text-accent"
-              >
-                <path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2h-6" />
-                <polyline points="14 2 14 8 20 8" />
-                <path d="M5 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                <path d="M7 16.5 8 22l-3-1-3 1 1-5.5" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium mb-2">Welcome to FontBook</h3>
-              <p className="text-sm text-foreground/60">
-                Select a font from the list to preview its styles, glyphs, and
-                detailed information.
-              </p>
-              <p className="text-sm text-foreground/60 mb-4 mt-4 flex gap-1 items-center justify-center">
-                Explore the <ShortcutsDialog /> to navigate.
-              </p>
-            </div>
-          </div>
+        <div className="flex items-center justify-end h-[65px] border-b border-foreground/10 px-4">
+          <ShortcutsDialog />
         </div>
+        <div className="flex-1 w-full h-full border-l border-foreground/10"></div>
       </div>
     );
   }
@@ -158,10 +125,8 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
       aria-modal="true"
       role="dialog"
     >
-      <GradientAnimationShader />
-
-      <div className="flex flex-col border-b shrink-0 border-foreground/10 z-10">
-        <div className="flex items-center justify-between h-[64px] px-4">
+      <div className="flex flex-col border-b shrink-0 border-foreground/10">
+        <div className="flex items-center justify-between h-[65px] px-4">
           <div className="flex flex-col">
             <h2 className="text-md font-mono font-medium truncate text-foreground">
               {font.family}
@@ -172,7 +137,7 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
         </div>
       </div>
 
-      <div className="py-4 z-10">
+      <div className="py-4">
         {(font.styles?.length ?? 0) > 0 && (
           <div className="px-4 pb-4">
             <RadioGroup
