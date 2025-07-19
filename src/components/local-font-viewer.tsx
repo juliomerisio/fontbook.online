@@ -531,6 +531,7 @@ export const LocalFontViewer = () => {
 
           <Tabs.Panel
             value="favorites"
+            keepMounted
             className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] mx-auto   border-foreground/10  "
           >
             {favoritesList.length > 0 && (

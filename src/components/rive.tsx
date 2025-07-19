@@ -14,6 +14,7 @@ const RiveImpl = ({ src }: { src: string }) => {
     }),
     autoplay: true,
   });
+  
 
   return <RiveComponent />;
 };
