@@ -17,8 +17,18 @@
   --color-dashed: var(--border-dashed);
   
 }
+*::selection {
+  background-color: color-mix(in oklch, var(--accent), white 10%);
+  color: var(--foreground);
+}
+
 
 @media (prefers-color-scheme: dark) {
+  *::selection {
+    background-color: color-mix(in oklch, var(--accent), white 10%);
+    color: var(--background);
+  }
+  
   :root {
     color-scheme: dark;
     --background: oklch(0.1559 0.0074 102.71);
@@ -49,3 +59,4 @@ body {
   outline: none;
   z-index: 1;
 }
+

@@ -23,6 +23,7 @@ import { FontGlyphPanel } from "./FontGlyphPanel";
 import { useMergeRefs } from "@/hooks/use-merge-refs";
 import Image from "next/image";
 import { Rive } from "./rive";
+import { Logo } from "./logo";
 
 const NotSupported = () => {
   return (
@@ -416,6 +417,7 @@ export const LocalFontViewer = () => {
     return <NotSupported />;
   }
 
+  console.log(supportAndPermissionStatus, snapshot.loading);
   if (supportAndPermissionStatus === "denied") {
     return <PermissionDenied loadAllFonts={loadAllFonts} />;
   }
@@ -460,20 +462,12 @@ export const LocalFontViewer = () => {
           className="rounded-md relative"
         >
           <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10">
-            <div className="w-[90px]">
-              <Image
-                priority
-                src="/logo.webp"
-                alt="Local Font Viewer"
-                width={40}
-                height={40}
-                onClick={() => {
-                  allVListRef.current?.scrollTo(0);
-                  favVListRef.current?.scrollTo(0);
-                }}
-                className=" cursor-pointer"
-              />
-            </div>
+            <Logo
+              onClick={() => {
+                allVListRef.current?.scrollTo(0);
+                favVListRef.current?.scrollTo(0);
+              }}
+            />
 
             <Tabs.List className="relative z-0 flex justify-center gap-1 items-center  w-fit  border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
               <Tabs.Tab
