@@ -41,7 +41,7 @@ const getFontStyles = (font: Omit<FontMeta, "styles">) => {
   };
 };
 
-export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
+export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
   const [selectedStyle, setSelectedStyle] = React.useState<string | null>(null);
 
   // Get all unique styles
@@ -87,7 +87,7 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
   if (!font) {
     return (
       <div
-        className="hidden xl:flex w-[420px] min-w-[320px] max-w-[480px] bg-background text-foreground  flex-col h-[100dvh] overflow-hidden relative"
+        className="hidden xl:flex w-[420px] min-w-[320px] max-w-[480px] bg-background text-foreground flex-col h-[100dvh] overflow-hidden relative"
         tabIndex={-1}
         aria-modal="true"
         role="dialog"
@@ -262,12 +262,14 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-medium mb-2">Welcome to FontBook</h3>
-              <p className="text-sm text-foreground/60">
+              <h3 className="text-lg font-medium mb-2 [text-shadow:_0_0.5px_0px_rgba(0,0,0,0.15)]">
+                Welcome to FontBook
+              </h3>
+              <p className="text-sm text-foreground/60 [text-shadow:_0_0.5px_0px_rgba(0,0,0,0.1)]">
                 Select a font from the list to preview its styles, glyphs, and
                 detailed information.
               </p>
-              <p className="text-sm text-foreground/60 mb-4 mt-4 flex gap-1 items-center justify-center">
+              <p className="text-sm text-foreground/60 mb-4 mt-4 flex gap-1 items-center justify-center [text-shadow:_0_0.5px_0px_rgba(0,0,0,0.1)]">
                 Explore the <ShortcutsDialog /> to navigate.
               </p>
             </div>

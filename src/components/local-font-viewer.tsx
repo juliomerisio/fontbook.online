@@ -8,7 +8,12 @@ import {
   useCallback,
 } from "react";
 import { useLocalFonts } from "@/hooks/use-local-fonts";
-import { fonts, uiState, toggleFavorite } from "@/store/font-store";
+import {
+  fonts,
+  uiState,
+  toggleFavorite,
+  persistFavoriteOrder,
+} from "@/store/font-store";
 import { useSnapshot } from "valtio";
 import * as React from "react";
 import { Tabs } from "@base-ui-components/react/tabs";
@@ -19,9 +24,8 @@ import { VList, VListHandle } from "virtua";
 import { useMousetrap } from "@/hooks/use-mouse-trap";
 import { ExtendedKeyboardEvent } from "mousetrap";
 import { FontFamilyCard, FontMetaCard } from "./font-meta-card";
-import { FontGlyphPanel } from "./FontGlyphPanel";
+import { FontPreviewPanel } from "./font-preview-panel";
 import { useMergeRefs } from "@/hooks/use-merge-refs";
-import Image from "next/image";
 import { Rive } from "./rive";
 import { Logo } from "./logo";
 
@@ -32,7 +36,7 @@ const NotSupported = () => {
         <div className="min-w-[300px]  flex h-[300px]">
           <Rive src="/logo.riv" />
         </div>
-        <div className="text-balance text-center">
+        <div className="text-balance text-center max-w-[300px]">
           Local Font Access API is not supported in this browser.
         </div>
       </div>
@@ -48,15 +52,18 @@ const PermissionDenied = ({ loadAllFonts }: { loadAllFonts: () => void }) => {
           <Rive src="/logo.riv" />
         </div>
         <button
-          className="text-balance text-center cursor-pointer"
+          className="text-balance text-center cursor-pointer gap-2"
           onClick={() => {
             loadAllFonts();
           }}
         >
-          Allow font permissions
-          <br />
-          to browse your local fonts in your browser
+          <span className="text-shadow-[0_0.5px_0px_rgba(0,0,0,0.15)] group relative isolate inline-flex items-center justify-center overflow-hidden text-left font-medium transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transtion-opacity rounded-md shadow-[0_1px_theme(colors.white/0.07)_inset,0_1px_3px_theme(colors.gray.900/0.2)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay text-sm h-[1.875rem] px-3 ring-1 bg-foreground/80 dark:bg-background/80 text-white dark:ring-background ring-foreground">
+            Allow font permissions
+          </span>
         </button>
+        <span className="text-foreground/60 mt-2">
+          to browse your local fonts in your browser
+        </span>
       </div>
     </div>
   );
@@ -69,7 +76,7 @@ const EmptyStateFavorites = () => {
         <div className="min-w-[300px]  flex h-[300px]">
           <Rive src="/logo.riv" />
         </div>
-        <div>No favorites yet</div>
+        <div className="text-foreground/60">No favorites yet</div>
       </div>
     </div>
   );
@@ -116,15 +123,10 @@ export function RestorableList<T>({
     if (!currentRef) return;
     const handle = currentRef;
     if (offset !== undefined) {
-      console.log("[RestorableList] Applying offset:", offset);
       handle.scrollTo(offset);
     }
     return () => {
       if (currentRef) {
-        console.log(
-          "[RestorableList] Cleanup: Saving offset:",
-          currentRef.scrollOffset
-        );
         sessionStorage.setItem(
           cacheKey,
           JSON.stringify([currentRef.scrollOffset, currentRef.cache])
@@ -137,10 +139,6 @@ export function RestorableList<T>({
 
     const handleBeforeUnload = () => {
       if (currentRef) {
-        console.log(
-          "[RestorableList] beforeunload: Saving offset:",
-          currentRef.scrollOffset
-        );
         sessionStorage.setItem(
           cacheKey,
           JSON.stringify([currentRef.scrollOffset, currentRef.cache])
@@ -225,7 +223,15 @@ export const LocalFontViewer = () => {
     if (tab !== "favorites") return [];
     return groupedFonts
       .flatMap((group) => group.styles.filter((style) => style.favorite))
-      .map((font) => ({ ...font, styles: [] }));
+      .map((font) => ({ ...font, styles: [] }))
+      .sort((a, b) => {
+        if (a.favoriteOrder != null && b.favoriteOrder != null) {
+          return a.favoriteOrder - b.favoriteOrder;
+        }
+        if (a.favoriteOrder != null) return -1;
+        if (b.favoriteOrder != null) return 1;
+        return 0;
+      });
   }, [groupedFonts, tab]);
 
   const filteredGroupedFonts = React.useMemo(() => {
@@ -246,6 +252,11 @@ export const LocalFontViewer = () => {
     () => favoritesList.map(() => React.createRef<HTMLDivElement>()),
     [favoritesList]
   );
+
+  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
+  const [sortMode, setSortMode] = React.useState(false);
+  const [sortingIndex, setSortingIndex] = React.useState<number | null>(null);
 
   // Throttle for navigation keys
   const THROTTLE_MS = 80;
@@ -286,23 +297,85 @@ export const LocalFontViewer = () => {
   const allVListRef = React.useRef<VListHandle | null>(null);
   const favVListRef = React.useRef<VListHandle | null>(null);
 
+  const handleSort = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (!yfonts || !ydoc) return;
+      const newOrder = [...favoritesList];
+      const [removed] = newOrder.splice(fromIndex, 1);
+      newOrder.splice(toIndex, 0, removed);
+      persistFavoriteOrder(newOrder, yfonts, ydoc);
+      // Ensure focus follows the item and stays in view
+      requestAnimationFrame(() => {
+        currentRefs[toIndex]?.current?.focus();
+        setActiveFontPSName(currentList[toIndex]?.postscriptName ?? "");
+        if (tab === "favorites") {
+          favVListRef.current?.scrollToIndex(toIndex, { align: "nearest" });
+        }
+      });
+    },
+    [favoritesList, yfonts, ydoc, currentRefs, currentList, tab]
+  );
+
   useMousetrap([
+    {
+      keys: ["command+backspace"],
+      callback: () => {
+        clearCache();
+      },
+    },
     {
       keys: ["escape"],
       callback: (e: ExtendedKeyboardEvent) => {
         e.preventDefault();
-        setActiveFontPSName("");
+        if (sortMode) {
+          setSortMode(false);
+          setSortingIndex(null);
+          // Keep focus on the current item when exiting sort mode
+          const currentIndex = currentRefs.findIndex(
+            (ref) => ref.current === document.activeElement
+          );
+          if (currentIndex !== -1) {
+            setActiveFontPSName(
+              currentList[currentIndex]?.postscriptName ?? ""
+            );
+          }
+        } else {
+          setActiveFontPSName("");
+        }
       },
     },
     {
-      keys: ["command+backspace"],
+      keys: ["space"],
       callback: (e: ExtendedKeyboardEvent) => {
         e.preventDefault();
-        clearCache();
-        lastFocusedIndexRef.current = {
-          all: 0,
-          favorites: 0,
-        };
+        if (tab === "favorites") {
+          if (sortMode) {
+            // Exit sort mode
+            setSortMode(false);
+            setSortingIndex(null);
+            // Keep focus on current item
+            const currentIndex = currentRefs.findIndex(
+              (ref) => ref.current === document.activeElement
+            );
+            if (currentIndex !== -1) {
+              setActiveFontPSName(
+                currentList[currentIndex]?.postscriptName ?? ""
+              );
+            }
+          } else {
+            // Enter sort mode
+            const currentIndex = currentRefs.findIndex(
+              (ref) => ref.current === document.activeElement
+            );
+            if (currentIndex !== -1) {
+              setSortMode(true);
+              setSortingIndex(currentIndex);
+              setActiveFontPSName(
+                currentList[currentIndex]?.postscriptName ?? ""
+              );
+            }
+          }
+        }
       },
     },
     // Navigation: ArrowDown, j, J
@@ -313,15 +386,33 @@ export const LocalFontViewer = () => {
         const now = Date.now();
         if (now - lastNavRef.current < THROTTLE_MS) return;
         lastNavRef.current = now;
+
+        if (sortMode && tab === "favorites") {
+          const currentIndex = sortingIndex ?? -1;
+          if (currentIndex === -1) return;
+
+          const nextIndex = Math.min(currentList.length - 1, currentIndex + 1);
+          if (nextIndex !== currentIndex) {
+            handleSort(currentIndex, nextIndex);
+            setSortingIndex(nextIndex);
+          }
+          return;
+        }
+
         const currentIndex = currentRefs.findIndex(
           (ref) => ref.current === document.activeElement
         );
+
         // If nothing is focused, focus the first visible card
         if (currentIndex === -1) {
           const vlistRef = tab === "favorites" ? favVListRef : allVListRef;
           const firstVisible = vlistRef.current?.findStartIndex() ?? 0;
           if (currentRefs[firstVisible]?.current) {
             currentRefs[firstVisible].current.focus();
+            setActiveFontPSName(
+              currentList[firstVisible]?.postscriptName ?? ""
+            );
+            vlistRef.current?.scrollToIndex(firstVisible, { align: "start" });
           }
           return;
         }
@@ -329,8 +420,10 @@ export const LocalFontViewer = () => {
         const next = Math.min(currentList.length - 1, currentIndex + 1);
         if (next !== currentIndex) {
           currentRefs[next]?.current?.focus();
+          setActiveFontPSName(currentList[next]?.postscriptName ?? "");
+          const vlistRef = tab === "favorites" ? favVListRef : allVListRef;
+          vlistRef.current?.scrollToIndex(next, { align: "nearest" });
         }
-        setActiveFontPSName(currentList[next]?.postscriptName ?? "");
       },
     },
     // Navigation: ArrowUp, k, K
@@ -341,22 +434,42 @@ export const LocalFontViewer = () => {
         const now = Date.now();
         if (now - lastNavRef.current < THROTTLE_MS) return;
         lastNavRef.current = now;
+
+        if (sortMode && tab === "favorites") {
+          const currentIndex = sortingIndex ?? -1;
+          if (currentIndex === -1) return;
+
+          const prevIndex = Math.max(0, currentIndex - 1);
+          if (prevIndex !== currentIndex) {
+            handleSort(currentIndex, prevIndex);
+            setSortingIndex(prevIndex);
+          }
+          return;
+        }
+
         const currentIndex = currentRefs.findIndex(
           (ref) => ref.current === document.activeElement
         );
+
         if (currentIndex === -1) {
           const vlistRef = tab === "favorites" ? favVListRef : allVListRef;
           const firstVisible = vlistRef.current?.findEndIndex() ?? 0;
           if (currentRefs[firstVisible]?.current) {
             currentRefs[firstVisible].current.focus();
+            setActiveFontPSName(
+              currentList[firstVisible]?.postscriptName ?? ""
+            );
+            vlistRef.current?.scrollToIndex(firstVisible, { align: "end" });
           }
           return;
         }
         const prev = Math.max(0, currentIndex - 1);
         if (prev !== currentIndex) {
           currentRefs[prev]?.current?.focus();
+          setActiveFontPSName(currentList[prev]?.postscriptName ?? "");
+          const vlistRef = tab === "favorites" ? favVListRef : allVListRef;
+          vlistRef.current?.scrollToIndex(prev, { align: "nearest" });
         }
-        setActiveFontPSName(currentList[prev]?.postscriptName ?? "");
       },
     },
     // Toggle favorite
@@ -442,11 +555,6 @@ export const LocalFontViewer = () => {
             if (prevIndex !== -1) {
               lastFocusedIndexRef.current[prevTab] = prevIndex;
               saveLastFocusedIndex(prevTab, prevIndex);
-              console.log(
-                "[Focus Debug] Saved last focused index",
-                prevTab,
-                prevIndex
-              );
             }
             setTab(v);
 
@@ -472,13 +580,13 @@ export const LocalFontViewer = () => {
             <Tabs.List className="relative z-0 flex justify-center gap-1 items-center  w-fit  border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
               <Tabs.Tab
                 value="all"
-                className=" flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
+                className="text-shadow-[0_0.5px_0px_rgba(0,0,0,0.15)] flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
               >
                 All
               </Tabs.Tab>
               <Tabs.Tab
                 value="favorites"
-                className="flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
+                className="text-shadow-[0_0.5px_0px_rgba(0,0,0,0.15)] flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
               >
                 Favorites
               </Tabs.Tab>
@@ -513,7 +621,6 @@ export const LocalFontViewer = () => {
                     fontGroup={fontGroup}
                     yfonts={yfonts}
                     ydoc={ydoc}
-                    // fontWeightLabels={fontWeightLabels}
                     parseFontStyleToWeight={parseFontStyleToWeight}
                   />
                 </div>
@@ -542,10 +649,43 @@ export const LocalFontViewer = () => {
                     key={font.postscriptName}
                     ref={favoritesCardRefs[index]}
                     tabIndex={0}
-                    className="font-card group focus-visible:bg-foreground/5"
+                    className={`font-card group focus-visible:bg-foreground/5 cursor-grab ${
+                      draggedIndex === index ? "opacity-50" : ""
+                    } ${
+                      dragOverIndex === index ? "ring-2 ring-blue-400" : ""
+                    } ${
+                      sortMode && sortingIndex === index
+                        ? "ring-2 ring-accent"
+                        : ""
+                    }`}
                     onFocus={() => {
                       lastFocusedIndexRef.current[tab] = index;
                       setActiveFontPSName(font.postscriptName);
+                    }}
+                    draggable
+                    onDragStart={() => {
+                      setDraggedIndex(index);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOverIndex(index);
+                    }}
+                    onDragLeave={() => setDragOverIndex(null)}
+                    onDrop={() => {
+                      if (draggedIndex == null || draggedIndex === index)
+                        return;
+                      const newOrder = [...favoritesList];
+                      const [removed] = newOrder.splice(draggedIndex, 1);
+                      newOrder.splice(index, 0, removed);
+                      if (yfonts && ydoc) {
+                        persistFavoriteOrder(newOrder, yfonts, ydoc);
+                      }
+                      setDraggedIndex(null);
+                      setDragOverIndex(null);
+                    }}
+                    onDragEnd={() => {
+                      setDraggedIndex(null);
+                      setDragOverIndex(null);
                     }}
                   >
                     <FontMetaCard
@@ -570,7 +710,7 @@ export const LocalFontViewer = () => {
           </Tabs.Panel>
         </Tabs.Root>
       </div>
-      <FontGlyphPanel
+      <FontPreviewPanel
         font={
           activeFontPSName
             ? filteredGroupedFonts.find(
