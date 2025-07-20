@@ -57,16 +57,16 @@ export default function ShortcutsDialog() {
       open={showShortcuts === "open"}
       onOpenChange={handleOpenChange}
     >
-      <Dialog.Trigger className="group relative isolate inline-flex items-center justify-center overflow-hidden text-left font-medium transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transtion-opacity rounded-md shadow-[0_1px_theme(colors.white/0.07)_inset,0_1px_3px_theme(colors.gray.900/0.2)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay text-sm h-[1.875rem] px-3 ring-1 bg-foreground/80 dark:bg-background/80 text-white dark:ring-background ring-foreground">
+      <Dialog.Trigger className="text-shadow-[0_0.5px_0px_rgba(0,0,0,0.15)] group relative isolate inline-flex items-center justify-center overflow-hidden text-left font-medium transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transtion-opacity rounded-md shadow-[0_1px_theme(colors.white/0.07)_inset,0_1px_3px_theme(colors.gray.900/0.2)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay text-sm h-[1.875rem] px-3 ring-1 bg-foreground/80 dark:bg-background/80 text-white dark:ring-background ring-foreground">
         Shortcuts
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black/10 backdrop-blur transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0" />
         <Dialog.Popup className="fixed top-1/2 left-1/2 -mt-8 w-[min(520px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-background p-6 text-foreground outline outline-1 outline-foreground/10 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
-          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium text-foreground">
+          <Dialog.Title className="-mt-1.5 mb-1 text-lg font-medium text-accent">
             Keyboard Shortcuts
           </Dialog.Title>
-          <Dialog.Description className="mb-6 text-base text-foreground/60">
+          <Dialog.Description className="mb-6 text-base text-foreground/60 text-balance">
             Use these shortcuts to navigate and manage your local fonts
             efficiently.
           </Dialog.Description>

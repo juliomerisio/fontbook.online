@@ -26,7 +26,6 @@ import { ExtendedKeyboardEvent } from "mousetrap";
 import { FontFamilyCard, FontMetaCard } from "./font-meta-card";
 import { FontPreviewPanel } from "./font-preview-panel";
 import { useMergeRefs } from "@/hooks/use-merge-refs";
-import Image from "next/image";
 import { Rive } from "./rive";
 import { Logo } from "./logo";
 
@@ -37,7 +36,7 @@ const NotSupported = () => {
         <div className="min-w-[300px]  flex h-[300px]">
           <Rive src="/logo.riv" />
         </div>
-        <div className="text-balance text-center">
+        <div className="text-balance text-center max-w-[300px]">
           Local Font Access API is not supported in this browser.
         </div>
       </div>
@@ -53,15 +52,18 @@ const PermissionDenied = ({ loadAllFonts }: { loadAllFonts: () => void }) => {
           <Rive src="/logo.riv" />
         </div>
         <button
-          className="text-balance text-center cursor-pointer"
+          className="text-balance text-center cursor-pointer gap-2"
           onClick={() => {
             loadAllFonts();
           }}
         >
-          Allow font permissions
-          <br />
-          to browse your local fonts in your browser
+          <span className="text-shadow-[0_0.5px_0px_rgba(0,0,0,0.15)] group relative isolate inline-flex items-center justify-center overflow-hidden text-left font-medium transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transtion-opacity rounded-md shadow-[0_1px_theme(colors.white/0.07)_inset,0_1px_3px_theme(colors.gray.900/0.2)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay text-sm h-[1.875rem] px-3 ring-1 bg-foreground/80 dark:bg-background/80 text-white dark:ring-background ring-foreground">
+            Allow font permissions
+          </span>
         </button>
+        <span className="text-foreground/60 mt-2">
+          to browse your local fonts in your browser
+        </span>
       </div>
     </div>
   );
@@ -74,7 +76,7 @@ const EmptyStateFavorites = () => {
         <div className="min-w-[300px]  flex h-[300px]">
           <Rive src="/logo.riv" />
         </div>
-        <div>No favorites yet</div>
+        <div className="text-foreground/60">No favorites yet</div>
       </div>
     </div>
   );
@@ -578,13 +580,13 @@ export const LocalFontViewer = () => {
             <Tabs.List className="relative z-0 flex justify-center gap-1 items-center  w-fit  border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
               <Tabs.Tab
                 value="all"
-                className=" flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
+                className="text-shadow-[0_0.5px_0px_rgba(0,0,0,0.15)] flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
               >
                 All
               </Tabs.Tab>
               <Tabs.Tab
                 value="favorites"
-                className="flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
+                className="text-shadow-[0_0.5px_0px_rgba(0,0,0,0.15)] flex h-[30px] w-[76px] items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80 outline-none select-none before:inset-x-0 before:inset-0 before:rounded-sm before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:relative focus-visible:before:absolute focus-visible:before:outline focus-visible:before:outline-2 data-[selected]:text-foreground data-[selected]:dark:text-background"
               >
                 Favorites
               </Tabs.Tab>
