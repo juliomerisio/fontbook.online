@@ -99,7 +99,7 @@ export const FontMetaCard = React.memo(
           >
             The quick brown fox jumps over the lazy dog
           </div>
-          <div className="mt-2 text-xs opacity-50 flex justify-between items-center">
+          <div className="mt-[90px] text-xs opacity-50 flex justify-between items-center">
             <span>{font.style}</span>
           </div>
         </div>
