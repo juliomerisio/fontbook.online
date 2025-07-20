@@ -194,16 +194,12 @@ export const KeySymbol = ({
   const keyContent = (
     <div
       className={cn(
-        "flex items-center justify-center h-5 min-w-[1.25rem] px-1 w-fit border text-xs rounded-md text-center bg-accent/5",
+        "min-w-[30px] inline-flex justify-center items-center py-1 px-1.5 bg-white border border-gray-200 font-mono text-sm text-gray-800 shadow-[0px_2px_0px_0px_rgba(0,0,0,0.08)] dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-200 dark:shadow-[0px_2px_0px_0px_rgba(255,255,255,0.1)] rounded-md",
         className
       )}
-      style={{
-        color: "var(--foreground)",
-        borderColor: "color-mix(in srgb, var(--accent) 20%, #7e7e7eae)",
-      }}
       {...otherProps}
     >
-      <span className="w-full text-center font-mono">{symbol}</span>
+      <span className="w-full text-center">{symbol}</span>
     </div>
   );
 
