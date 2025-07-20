@@ -306,6 +306,7 @@ export const LocalFontViewer = () => {
       persistFavoriteOrder(newOrder, yfonts, ydoc);
       // Ensure focus follows the item and stays in view
       requestAnimationFrame(() => {
+        // TODO: current is null here
         currentRefs[toIndex]?.current?.focus();
         setActiveFontPSName(currentList[toIndex]?.postscriptName ?? "");
         if (tab === "favorites") {
@@ -530,7 +531,6 @@ export const LocalFontViewer = () => {
     return <NotSupported />;
   }
 
-  console.log(supportAndPermissionStatus, snapshot.loading);
   if (supportAndPermissionStatus === "denied") {
     return <PermissionDenied loadAllFonts={loadAllFonts} />;
   }

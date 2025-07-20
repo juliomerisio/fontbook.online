@@ -332,6 +332,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
             >
               {allStyles.map((style) => (
                 <label key={style.style} className="flex items-center gap-2">
+                  {/* TODO add focus rings and fix tab navigation */}
                   <Radio.Root
                     value={style.style}
                     className="flex size-4 items-center justify-center rounded-full outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-foreground data-[unchecked]:border data-[unchecked]:border-foreground/20"
