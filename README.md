@@ -88,7 +88,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Author
 
-- **Julio Merisio** - [GitHub](https://github.com/juliomerisio) | [Twitter](https://twitter.com/juliomerisio) | [LinkedIn](https://linkedin.com/in/juliomerisio)
+<img src="https://github.com/juliomerisio.png" width="100" alt="Julio Merisio" style="border-radius: 50%;" />
+
+**Julio Merisio** — [GitHub](https://github.com/juliomerisio) • [Twitter](https://twitter.com/juliomerisio) • [LinkedIn](https://linkedin.com/in/juliomerisio)
 
 ## Acknowledgments
 
