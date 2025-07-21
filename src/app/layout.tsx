@@ -17,6 +17,18 @@ export const metadata: Metadata = {
   title: "Font Book Online – Local Font Preview & Manager",
   description:
     "Preview your local fonts in the browser. Fast, private, and easy font viewer for designers and developers.",
+  manifest: "/manifest.json",
+  themeColor: "#000000",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Font Book Online",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
   keywords: [
     "font viewer",
     "local fonts",
@@ -108,12 +120,12 @@ export default function RootLayout({
           sizes="16x16"
           href="/favicon-16x16.png"
         />
-        <link rel="manifest" href="/site.webmanifest" />
-        <title>Font Book Online</title>
-        <meta
-          name="description"
-          content="Preview your local fonts in the browser. Fast, private, and easy font viewer for designers and developers."
-        />
+        <meta name="application-name" content="Font Book Online" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Font Book Online" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
