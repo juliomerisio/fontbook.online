@@ -2,15 +2,7 @@ import { VList, VListHandle } from "virtua";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useMergeRefs } from "@/hooks/use-merge-refs";
 
-export function RestorableList<T>({
-  id,
-  data,
-  renderRow,
-  style,
-  overscan = 10,
-  className,
-  vlistRef,
-}: {
+type RestorableListProps<T> = {
   id: string;
   data: T[];
   renderRow: (item: T, index: number) => React.ReactNode;
@@ -18,7 +10,11 @@ export function RestorableList<T>({
   overscan?: number;
   className?: string;
   vlistRef?: React.RefObject<VListHandle | null>;
-}) {
+};
+
+export function RestorableList<T>(props: RestorableListProps<T>) {
+  const { id, data, renderRow, style, overscan, className, vlistRef } = props;
+
   const cacheKey = "list-cache-" + id;
 
   const ref = useRef<VListHandle>(null);
@@ -54,6 +50,7 @@ export function RestorableList<T>({
       }
     };
   }, [offset, cacheKey]);
+
   useEffect(() => {
     const currentRef = ref.current;
 

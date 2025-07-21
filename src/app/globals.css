@@ -5,6 +5,7 @@
   --foreground:oklch(0.1559 0.0074 102.71);
   --accent: #FFA112;
   --border-dashed: oklch(0.25 0.0074 102.71 / 1); 
+  --drop-shadow-text: 0 0.5px 0px rgba(0, 0, 0, 0.15);
 }
 
 @theme inline {
@@ -14,14 +15,9 @@
   --font-mono: var(--font-geist-mono);
   --color-accent: var(--accent);
   --color-dashed: var(--border-dashed);
+  --drop-shadow-text: var(--drop-shadow-text);
   
 }
-
-*::selection {
-  background-color: color-mix(in oklch, var(--accent), white 10%);
-  color: var(--foreground);
-}
-
 
 @media (prefers-color-scheme: dark) {
   *::selection {
@@ -34,10 +30,16 @@
     --background: oklch(0.1559 0.0074 102.71);
     --foreground: oklch(0.9252 0.0094 62.58);
     --accent: #FFA112;
-    --border-dashed: oklch(0.7 0.0094 62.58 / 1); 
-
+    --border-dashed: oklch(0.7 0.0094 62.58 / 1);
   }
 }
+
+
+*::selection {
+  background-color: color-mix(in oklch, var(--accent), white 10%);
+  color: var(--foreground);
+}
+
 
 body {
   background: var(--background);
