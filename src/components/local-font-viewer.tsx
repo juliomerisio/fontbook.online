@@ -451,10 +451,10 @@ export const LocalFontViewer = () => {
           }}
           className="rounded-md relative"
         >
-          <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10">
+          <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10 h-[65px]">
             <Logo32 onClick={scrollToTop} />
 
-            <div className="flex items-center gap-4">
+            <div className="absolute left-1/2 -translate-x-1/2 items-center gap-4 flex-1 justify-center">
               <Tabs.List className="relative z-0 flex justify-center gap-1 items-center w-fit border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
                 <Tabs.Tab
                   value="all"
@@ -476,7 +476,7 @@ export const LocalFontViewer = () => {
             </div>
 
             {tab === "all" ? (
-              <div className="relative w-[200px]">
+              <div className="relative">
                 <input
                   ref={searchInputRef}
                   type="text"
