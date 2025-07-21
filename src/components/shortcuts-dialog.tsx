@@ -12,12 +12,11 @@ const SHORTCUTS = [
   },
   {
     keys: [" Space"],
-    description:
-      "In Favorites tab: Press to enter/exit drag mode for reordering fonts",
+    description: "Enter/exit drag mode for focused font (favorites tab)",
   },
   {
     keys: ["r"],
-    description: "Shuffle font styles",
+    description: "Shuffle focused font styles",
   },
   {
     keys: [Keys.ArrowUp],
@@ -31,6 +30,11 @@ const SHORTCUTS = [
   {
     keys: ["t"],
     description: "Toggle between All and Favorites tabs",
+  },
+  {
+    keys: [" Esc"],
+    description:
+      "Close shortcuts dialog / Close active font panel / Exit drag mode",
   },
 ];
 
