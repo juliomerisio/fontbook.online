@@ -26,12 +26,12 @@ export const FontMetaCard = React.memo(
         : "";
 
     return (
-      <div className="border-b-[0.5px] border-foreground/10 p-2 flex flex-col gap-1 min-w-[220px] w-full group relative">
+      <div className="border-b-[0.5px] border-foreground/10 p-4 flex flex-col gap-1 min-w-[220px] w-full group relative">
         <div className="flex items-center gap-2 justify-between">
-          <div className="text-xs opacity-80 truncate">
-            {font.fullName}{" "}
+          <div className="text-xs opacity-80 truncate gap-2 flex items-center">
+            {font.fullName}
             {moreCount > 0 && (
-              <span className="opacity-60 bg-foreground/10 px-1.5 py-0.5 rounded-md">
+              <span className="opacity-90 bg-accent/20 px-1.5 py-0.5 rounded-md">
                 {moreLabel}
               </span>
             )}
@@ -50,7 +50,7 @@ export const FontMetaCard = React.memo(
             onPressedChange={() => {
               toggleFavorite({ yfonts, ydoc, font });
             }}
-            className="outline-none absolute top-0 right-2 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer size-8 flex items-center justify-center rounded-md text-foreground/40 select-none hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[pressed]:text-foreground"
+            className="outline-none absolute top-2 right-2 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer size-8 flex items-center justify-center rounded-md text-foreground/40 select-none hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[pressed]:text-foreground"
             render={(props, state) =>
               state.pressed ? (
                 <button

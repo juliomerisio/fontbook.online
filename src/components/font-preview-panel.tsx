@@ -77,7 +77,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
       role="dialog"
       aria-label="Font Preview Panel"
     >
-      <GradientAnimationShader />
+      {!font ? <GradientAnimationShader /> : null}
 
       {!font ? (
         <NoFontSelected />
