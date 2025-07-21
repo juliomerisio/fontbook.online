@@ -1,10 +1,9 @@
-import { useEffect, useRef, useCallback, useMemo } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import * as Y from "yjs";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { FontData, FontMeta, FontPermissionStatus } from "../types";
 import { bind } from "valtio-yjs-read-only";
 import { useLocalFontQueryType } from "./use-local-font-query";
-import { useMousetrap } from "./use-mouse-trap";
 
 type useYjsFontSyncType = {
   documentName: string;
@@ -26,21 +25,6 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
   const supportAndPermissionStatusRef = useRef<FontPermissionStatus | null>(
     null
   );
-
-  const undoManagerIssues = useMemo(
-    () => (ydocRef.current ? new Y.UndoManager(ydocRef.current) : null),
-    []
-  );
-
-  useMousetrap([
-    {
-      keys: ["ctrl+z", "command+z"],
-      callback: () => {
-        undoManagerIssues?.undo();
-        return true;
-      },
-    },
-  ]);
 
   const persistFontsToYjs = useCallback((fontsToPersist: FontData[]) => {
     if (yfontsRef.current && fontsToPersist.length > 0) {
