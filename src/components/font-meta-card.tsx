@@ -1,4 +1,3 @@
-import useFitText from "@/hooks/use-fit-text";
 import * as Y from "yjs";
 import * as React from "react";
 import { FontMeta } from "@/types";
@@ -19,11 +18,6 @@ export const FontMetaCard = React.memo(
     ydoc: Y.Doc | null;
     parseFontStyleToWeight: (style: string) => number;
   }) {
-    const { textRef, containerRef, fontSize } = useFitText({
-      minFontSize: 10,
-      deps: [font.family, font.style, font.postscriptName], // Add postscriptName to deps
-    });
-
     const getFontStyles = (font: FontMeta) => {
       const style = font.style.toLowerCase();
 
@@ -48,10 +42,7 @@ export const FontMetaCard = React.memo(
     const fontStyles = getFontStyles(font);
 
     return (
-      <div
-        className="border-b-[0.5px] border-foreground/10 p-2 flex flex-col gap-1 min-w-[220px] w-full min-h-[226px] group relative"
-        ref={containerRef}
-      >
+      <div className="border-b-[0.5px] border-foreground/10 p-2 flex flex-col gap-1 min-w-[220px] w-full min-h-[226px] group relative">
         <div className="flex items-center gap-2 justify-between">
           <div className="text-xs opacity-80 truncate">{font.fullName}</div>
           <Toggle
@@ -80,20 +71,18 @@ export const FontMetaCard = React.memo(
         </div>
 
         <div
-          className="mt-2 mb-1 flex-1"
+          className="mt-2 mb-1 flex-1 w-full"
           style={{
             containerType: "inline-size",
           }}
         >
           <div
-            ref={textRef}
-            data-scale-width="true"
             style={{
               whiteSpace: "nowrap",
               display: "block",
               ...fontStyles,
-              fontSize: fontSize ? `${fontSize}px` : undefined,
               padding: 8,
+              fontSize: "4cqi",
               lineHeight: 1.2,
             }}
           >

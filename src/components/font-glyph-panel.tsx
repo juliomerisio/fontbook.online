@@ -90,6 +90,7 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
         tabIndex={-1}
         aria-modal="true"
         role="dialog"
+        aria-label="Font Glyph Panel"
       >
         <div className="flex items-center justify-end h-[65px] border-b border-foreground/10 px-4">
           <ShortcutsDialog />
@@ -124,6 +125,7 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
       tabIndex={-1}
       aria-modal="true"
       role="dialog"
+      aria-label="Font Glyph Panel"
     >
       <div className="flex flex-col border-b shrink-0 border-foreground/10">
         <div className="flex items-center justify-between h-[65px] px-4">
