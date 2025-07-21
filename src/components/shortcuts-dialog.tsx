@@ -58,7 +58,7 @@ export function ShortcutsDialog() {
       open={showShortcuts === "open"}
       onOpenChange={handleOpenChange}
     >
-      <Dialog.Trigger className="text-shadow-basic group relative isolate inline-flex items-center justify-center overflow-hidden text-left font-medium transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transtion-opacity rounded-md shadow-[0_1px_theme(colors.white/0.07)_inset,0_1px_3px_theme(colors.gray.900/0.2)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay text-sm h-[1.875rem] px-3 ring-1 bg-foreground/80 dark:bg-background/80 text-white dark:ring-background ring-foreground">
+      <Dialog.Trigger className="outline-none text-shadow-basic group relative isolate inline-flex items-center justify-center overflow-hidden text-left font-medium transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transtion-opacity rounded-md shadow-[0_1px_theme(colors.white/0.07)_inset,0_1px_3px_theme(colors.gray.900/0.2)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay text-sm h-[1.875rem] px-3 focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background bg-foreground/80 dark:bg-background/80 text-white">
         Shortcuts
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -76,7 +76,7 @@ export function ShortcutsDialog() {
           </Dialog.Description>
           <Dialog.Close
             tabIndex={0}
-            className="absolute right-2 top-2 hover:bg-foreground/5  flex p-2 rounded-full items-center justify-center  border border-foreground/10 bg-background  text-base font-medium text-foreground select-none  focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-background/60"
+            className=" outline-none absolute right-2 top-2 hover:bg-foreground/5 flex p-2 rounded-full items-center justify-center border border-foreground/10 bg-background text-base font-medium text-foreground select-none focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background active:bg-background/60"
           >
             <span className="sr-only">Close</span>
             <svg

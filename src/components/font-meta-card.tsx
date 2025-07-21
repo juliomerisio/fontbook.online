@@ -29,7 +29,7 @@ export const FontMetaCard = React.memo(
             onPressedChange={() => {
               toggleFavorite({ yfonts, ydoc, font });
             }}
-            className="absolute top-2 left-1/2 -translate-x-1/2 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer size-8 flex items-center justify-center rounded-sm text-foreground/40 select-none hover:text-foreground focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[pressed]:text-foreground"
+            className=" outline-none absolute top-2 left-1/2 -translate-x-1/2 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer size-8 flex items-center justify-center rounded-md text-foreground/40 select-none hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[pressed]:text-foreground"
             render={(props, state) =>
               state.pressed ? (
                 <button type="button" {...props}>
@@ -112,7 +112,7 @@ export const FontFamilyCard = React.memo(
             >
               <Accordion.Item value="more" className="border-0 p-0 m-0 w-full">
                 <Accordion.Header className="p-0 m-0">
-                  <Accordion.Trigger className="cursor-pointer absolute bottom-5 z-30 left-1/2 -translate-x-1/2 group flex items-center gap-1 bg-transparent p-0 m-0 text-xs hover:underline text-foreground/40 before:absolute before:inset-0 before:content-['']">
+                  <Accordion.Trigger className="outline-none cursor-pointer absolute bottom-5 z-30 left-1/2 -translate-x-1/2 group flex items-center gap-1 bg-transparent p-0 m-0 text-xs hover:underline text-foreground/40 before:absolute before:inset-0 before:content-[''] focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                     {open
                       ? "Collapse" + " " + fontGroup.family
                       : `+${moreCount} ${moreCount > 1 ? "styles" : "style"}`}

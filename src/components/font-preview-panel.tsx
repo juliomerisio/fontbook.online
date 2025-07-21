@@ -112,7 +112,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                     >
                       <Radio.Root
                         value={style.style}
-                        className="flex size-4 items-center justify-center rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-foreground data-[unchecked]:border data-[unchecked]:border-foreground/20 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        className="flex size-4 items-center justify-center rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent data-[checked]:bg-foreground data-[unchecked]:border data-[unchecked]:border-foreground/20 focus:ring-2 focus:ring-accent focus:ring-offset-2 ring-offset-background"
                       >
                         <Radio.Indicator className="flex before:size-1.5 before:rounded-full before:bg-background data-[unchecked]:hidden focus-visible:outline-2 focus-visible:outline-blue-800" />
                       </Radio.Root>
