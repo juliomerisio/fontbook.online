@@ -161,7 +161,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
 
                 <div className="flex flex-col gap-4 border-t -mx-4 px-4 border-dashed border-b border-foreground/50 py-4">
                   <h3 className="text-sm font-medium opacity-60">Preview</h3>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <div className="bg-foreground text-background flex items-center -mx-4 px-4 py-4">
                       <div
                         className="whitespace-nowrap block text-xl overflow-hidden"
