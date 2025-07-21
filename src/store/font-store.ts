@@ -49,6 +49,7 @@ export const persistFavoriteOrder = (
   const orderMap = new Map(
     newOrder.map((font, idx) => [font.postscriptName, idx])
   );
+
   ydoc.transact(() => {
     for (let i = 0; i < yfonts.length; i++) {
       const font = yfonts.get(i);

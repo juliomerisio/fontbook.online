@@ -61,7 +61,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
       ? font
       : font?.styles?.find((s) => s.style === selectedStyle) || font;
 
-  const fontStyles = font ? getFontStyles(currentStyle as FontMeta) : {};
+  const fontStyles = currentStyle ? getFontStyles(currentStyle) : {};
 
   const handleValueChange = (value: unknown) => {
     if (typeof value === "string") {
