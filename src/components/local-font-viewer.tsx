@@ -396,7 +396,9 @@ export const LocalFontViewer = () => {
   const scrollToTop = useCallback(() => {
     allVListRef.current?.scrollTo(0);
     favVListRef.current?.scrollTo(0);
-  }, []);
+    setSearchQuery("");
+    setActiveFontPSName("");
+  }, [setSearchQuery, setActiveFontPSName]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
