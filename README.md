@@ -1,5 +1,12 @@
 # Font Book Online
 
+<p align="center">
+  <video autoplay loop muted playsinline width="512">
+    <source src="public/logo-animation.mp4" type="video/mp4">
+    <img src="public/android-chrome-512x512.png" alt="Font Book Online Logo" width="512" />
+  </video>
+</p>
+
 A modern font viewer for your local fonts, built with Next.js. Preview your local fonts in the browser with a fast, private, and easy-to-use interface.
 
 ## Features
