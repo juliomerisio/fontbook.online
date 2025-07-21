@@ -103,4 +103,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [The Elements of Typographic Style](https://archive.org/details/the-elements-of-typographic-style-robert-bringhurst-z-lib.org) by Robert Bringhurst - A comprehensive guide to typography
 - [Abstract: The Art of Design - Jonathan Hoefler](https://www.dailymotion.com/video/x8kgp1c) - Documentary on typeface design
 - [Local Font Access API Explainer](https://github.com/WICG/local-font-access) - Technical details about the API
-- [Typography Handbook](https://typographyhandbook.com/) - A concise, referential guide to web typography
