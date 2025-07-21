@@ -32,6 +32,11 @@ import { Logo } from "./logo";
 const NotSupported = () => {
   return (
     <div className="flex flex-col h-[100dvh] items-center justify-center bg-background">
+      <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10 h-[64px]">
+        <Logo />
+        <div className="w-[90px] "></div>
+      </div>
+
       <div className="flex flex-col items-center justify-center">
         <div className="min-w-[300px]  flex h-[300px]">
           <Rive src="/logo.riv" />
@@ -47,6 +52,10 @@ const NotSupported = () => {
 const PermissionDenied = ({ loadAllFonts }: { loadAllFonts: () => void }) => {
   return (
     <div className="flex flex-col h-[100dvh] items-center justify-center bg-background">
+      <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10 h-[64px]">
+        <Logo />
+        <div className="w-[90px] "></div>
+      </div>
       <div className="flex flex-col  items-center justify-center ">
         <div className="min-w-[300px]  flex h-[300px]">
           <Rive src="/logo.riv" />
@@ -258,10 +267,6 @@ export const LocalFontViewer = () => {
   const [sortMode, setSortMode] = React.useState(false);
   const [sortingIndex, setSortingIndex] = React.useState<number | null>(null);
 
-  // Throttle for navigation keys
-  const THROTTLE_MS = 80;
-  const lastNavRef = React.useRef(0);
-
   const currentList =
     tab === "favorites" ? favoritesList : filteredGroupedFonts;
   const currentRefs = tab === "favorites" ? favoritesCardRefs : cardRefs;
@@ -384,9 +389,6 @@ export const LocalFontViewer = () => {
       keys: ["down", "j"],
       callback: (e: ExtendedKeyboardEvent) => {
         e.preventDefault();
-        const now = Date.now();
-        if (now - lastNavRef.current < THROTTLE_MS) return;
-        lastNavRef.current = now;
 
         if (sortMode && tab === "favorites") {
           const currentIndex = sortingIndex ?? -1;
@@ -432,9 +434,6 @@ export const LocalFontViewer = () => {
       keys: ["up", "k"],
       callback: (e: ExtendedKeyboardEvent) => {
         e.preventDefault();
-        const now = Date.now();
-        if (now - lastNavRef.current < THROTTLE_MS) return;
-        lastNavRef.current = now;
 
         if (sortMode && tab === "favorites") {
           const currentIndex = sortingIndex ?? -1;
@@ -524,7 +523,17 @@ export const LocalFontViewer = () => {
   );
 
   if (snapshot.loading) {
-    return <div className="flex gap-2 mb-2"></div>;
+    return (
+      <div className="min-h-[100dvh] flex flex-row">
+        <div className="flex-1 min-w-0 flex flex-col">
+          <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10 h-[64px]">
+            <Logo />
+
+            <div className="w-[90px] "></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (supportAndPermissionStatus === "not-supported") {
@@ -601,6 +610,7 @@ export const LocalFontViewer = () => {
 
           <Tabs.Panel
             value="all"
+            tabIndex={-1}
             className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px]  mx-auto  border-[color:var(--border-dashed)] "
           >
             <RestorableList
@@ -627,10 +637,10 @@ export const LocalFontViewer = () => {
               )}
               style={{
                 flex: 1,
+                display: "flex",
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
               }}
-              overscan={5}
               className="overflow-x-hidden"
               vlistRef={allVListRef}
             />
@@ -638,6 +648,7 @@ export const LocalFontViewer = () => {
 
           <Tabs.Panel
             value="favorites"
+            tabIndex={-1}
             className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] mx-auto   border-foreground/10  "
           >
             {favoritesList.length > 0 && (
@@ -701,7 +712,6 @@ export const LocalFontViewer = () => {
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
                 }}
-                overscan={5}
                 className="overflow-x-hidden"
                 vlistRef={favVListRef}
               />
