@@ -53,8 +53,6 @@ export const LocalFontViewer = () => {
     parseAsString.withDefault("")
   );
 
-  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
   const [sortMode, setSortMode] = React.useState(false);
   const [sortingIndex, setSortingIndex] = React.useState<number | null>(null);
 
@@ -440,6 +438,8 @@ export const LocalFontViewer = () => {
             }
             setTab(v);
 
+            setSearchQuery("");
+
             const idx = loadLastFocusedIndex(
               v,
               v === "favorites"
@@ -480,7 +480,7 @@ export const LocalFontViewer = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search fonts... (/)"
+                  placeholder="Search"
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="px-3 py-1.5 rounded-md border border-foreground/10 bg-accent/5 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
@@ -504,8 +504,9 @@ export const LocalFontViewer = () => {
                   key={fontGroup.family + index}
                   ref={cardRefs[index]}
                   tabIndex={0}
-                  className="outline-none    group focus-visible:bg-foreground/5"
-                  onFocus={() => {
+                  className="outline-none group focus:bg-foreground/5"
+                  onClick={() => {
+                    console.log("clicked");
                     lastFocusedIndexRef.current[tab] = index;
                     setActiveFontPSName(fontGroup.postscriptName);
                   }}
@@ -531,7 +532,7 @@ export const LocalFontViewer = () => {
           <Tabs.Panel
             value="favorites"
             tabIndex={-1}
-            className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] mx-auto   border-foreground/10  "
+            className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] mx-auto border-foreground/10  "
           >
             {favoritesList.length > 0 && (
               <RestorableList
@@ -542,44 +543,11 @@ export const LocalFontViewer = () => {
                     key={font.postscriptName}
                     ref={favoritesCardRefs[index]}
                     tabIndex={0}
-                    className={`outline-none group focus-visible:bg-foreground/5 cursor-grab ${
-                      draggedIndex === index ? "opacity-50" : ""
-                    } ${
-                      dragOverIndex === index ? "ring-2 ring-blue-400" : ""
-                    } ${
+                    className={`outline-none group focus-visible:bg-foreground/5 ${
                       sortMode && sortingIndex === index
                         ? "ring-2 ring-accent"
                         : ""
                     }`}
-                    onFocus={() => {
-                      lastFocusedIndexRef.current[tab] = index;
-                      setActiveFontPSName(font.postscriptName);
-                    }}
-                    draggable
-                    onDragStart={() => {
-                      setDraggedIndex(index);
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      setDragOverIndex(index);
-                    }}
-                    onDragLeave={() => setDragOverIndex(null)}
-                    onDrop={() => {
-                      if (draggedIndex == null || draggedIndex === index)
-                        return;
-                      const newOrder = [...favoritesList];
-                      const [removed] = newOrder.splice(draggedIndex, 1);
-                      newOrder.splice(index, 0, removed);
-                      if (yfonts && ydoc) {
-                        persistFavoriteOrder(newOrder, yfonts, ydoc);
-                      }
-                      setDraggedIndex(null);
-                      setDragOverIndex(null);
-                    }}
-                    onDragEnd={() => {
-                      setDraggedIndex(null);
-                      setDragOverIndex(null);
-                    }}
                   >
                     <FontMetaCard font={font} yfonts={yfonts} ydoc={ydoc} />
                   </div>
