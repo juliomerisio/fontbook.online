@@ -15,6 +15,15 @@ A modern, fast, and private font viewer for designers and developers. Preview an
 - ⭐ **Favorites**: Mark and organize your favorite fonts
 - 💾 **Persistent Storage**: Your preferences are saved locally
 
+## Roadmap
+
+- [ ] **Localization**: Multi-language support for global accessibility
+- [ ] **Search**: Search for fonts by name, style, or other attributes
+- [ ] **Braille Fallback**: Support for braille font rendering and accessibility features
+- [ ] **Edit Text**: Edit text displayed in the font preview
+- [ ] **Grid View**: Alternative layout option for viewing multiple fonts simultaneously
+- [ ] **Integration Tests**:  Test suite for ensuring reliable functionality
+
 ## Technology Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/)
@@ -24,6 +33,8 @@ A modern, fast, and private font viewer for designers and developers. Preview an
 - **Styling**: [TailwindCSS](https://tailwindcss.com/)
 - **Animation**: [Rive](https://rive.app/)
 - **Storage**: [Y.js](https://github.com/yjs/yjs) with IndexedDB persistence
+
+
 
 ## Getting Started
 
