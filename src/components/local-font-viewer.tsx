@@ -440,6 +440,8 @@ export const LocalFontViewer = () => {
             }
             setTab(v);
 
+            setSearchQuery("");
+
             const idx = loadLastFocusedIndex(
               v,
               v === "favorites"
@@ -504,8 +506,9 @@ export const LocalFontViewer = () => {
                   key={fontGroup.family + index}
                   ref={cardRefs[index]}
                   tabIndex={0}
-                  className="outline-none    group focus-visible:bg-foreground/5"
-                  onFocus={() => {
+                  className="outline-none group focus:bg-foreground/5"
+                  onClick={() => {
+                    console.log("clicked");
                     lastFocusedIndexRef.current[tab] = index;
                     setActiveFontPSName(fontGroup.postscriptName);
                   }}
@@ -531,7 +534,7 @@ export const LocalFontViewer = () => {
           <Tabs.Panel
             value="favorites"
             tabIndex={-1}
-            className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] mx-auto   border-foreground/10  "
+            className="h-full flex flex-col flex-1 min-h-[100dvh] pt-[66px] mx-auto border-foreground/10  "
           >
             {favoritesList.length > 0 && (
               <RestorableList
@@ -555,7 +558,6 @@ export const LocalFontViewer = () => {
                       lastFocusedIndexRef.current[tab] = index;
                       setActiveFontPSName(font.postscriptName);
                     }}
-                    draggable
                     onDragStart={() => {
                       setDraggedIndex(index);
                     }}

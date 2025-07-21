@@ -97,9 +97,10 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
             </div>
           </div>
 
-          <div className="py-4 z-10">
+          <div className="py-4 z-10 border-b border-foreground/50 border-dashed">
             {(font.styles?.length ?? 0) > 0 && (
-              <div className="px-4 pb-4">
+              <div className="px-4">
+                <h3 className="text-sm font-medium opacity-60 mb-4">Styles</h3>
                 <RadioGroup
                   value={selectedStyle || font.style}
                   onValueChange={handleValueChange}
@@ -125,16 +126,16 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
               </div>
             )}
           </div>
-          <ScrollArea.Root className="flex-1 w-full h-full">
+          <ScrollArea.Root className="flex-1 w-full h-full ">
             <ScrollArea.Viewport
-              className="h-full w-full p-4 pb-40"
+              className="h-full w-full p-4 pb-40 overflow-hidden"
               tabIndex={-1}
             >
-              <div className="flex flex-col gap-4">
-                <div className="space-y-4">
+              <div className="flex flex-col gap-4 ">
+                <div className="space-y-2">
                   <div className="flex w-full items-center">
                     <div
-                      className="whitespace-nowrap block text-2xl"
+                      className="whitespace-nowrap block text-xl"
                       style={fontStyles}
                     >
                       {uppercase}
@@ -142,7 +143,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                   </div>
                   <div className="flex w-full items-center">
                     <div
-                      className="whitespace-nowrap block text-2xl"
+                      className="whitespace-nowrap block text-xl"
                       style={fontStyles}
                     >
                       {lowercase}
@@ -150,7 +151,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                   </div>
                   <div className="flex w-full items-center">
                     <div
-                      className="whitespace-nowrap block text-2xl"
+                      className="whitespace-nowrap block text-xl"
                       style={fontStyles}
                     >
                       {symbols}
@@ -158,12 +159,12 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-4 mt-8 border-t -mx-4 px-4 border-dashed border-b border-foreground/10 pt-4">
+                <div className="flex flex-col gap-4 border-t -mx-4 px-4 border-dashed border-b border-foreground/50 py-4">
                   <h3 className="text-sm font-medium opacity-60">Preview</h3>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div className="bg-foreground text-background flex items-center -mx-4 px-4 py-4">
                       <div
-                        className="whitespace-nowrap block text-2xl"
+                        className="whitespace-nowrap block text-xl overflow-hidden"
                         style={fontStyles}
                       >
                         {pangram}
@@ -171,7 +172,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                     </div>
                     <div className="bg-accent text-foreground dark:text-background flex items-center -mx-4 px-4 py-4">
                       <div
-                        className="whitespace-nowrap block text-2xl"
+                        className="whitespace-nowrap block text-xl overflow-hidden"
                         style={fontStyles}
                       >
                         {pangram}
@@ -179,7 +180,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                     </div>
                     <div className="bg-background text-foreground flex items-center -mx-4 px-4 py-4">
                       <div
-                        className="whitespace-nowrap block text-2xl"
+                        className="whitespace-nowrap block text-xl overflow-hidden"
                         style={fontStyles}
                       >
                         {pangram}
@@ -188,31 +189,31 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-4 ">
+                <div className="flex flex-col gap-2">
                   <h3 className="text-sm font-medium opacity-60">
                     Style Showcase
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-2">
                     <div
-                      className="flex items-center justify-center bg-foreground text-background text-4xl aspect-square"
+                      className="flex items-center justify-center bg-foreground text-background text-xl aspect-square"
                       style={fontStyles}
                     >
                       Bl
                     </div>
                     <div
-                      className="flex items-center justify-center bg-foreground text-background text-4xl aspect-square"
+                      className="flex items-center justify-center bg-foreground text-background text-xl aspect-square"
                       style={fontStyles}
                     >
                       09
                     </div>
                     <div
-                      className="flex items-center justify-center bg-background text-foreground text-4xl aspect-square border border-foreground/10"
+                      className="flex items-center justify-center bg-background text-foreground text-xl aspect-square border border-foreground/10"
                       style={fontStyles}
                     >
                       09
                     </div>
                     <div
-                      className="flex items-center justify-center bg-background text-foreground text-4xl aspect-square border border-foreground/10"
+                      className="flex items-center justify-center bg-background text-foreground text-xl aspect-square border border-foreground/10"
                       style={fontStyles}
                     >
                       Bl
@@ -220,7 +221,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-4 mt-8">
+                <div className="flex flex-col gap-2 ">
                   <h3 className="text-sm font-medium opacity-60">
                     Font Information
                   </h3>

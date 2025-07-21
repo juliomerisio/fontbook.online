@@ -4,7 +4,6 @@ import { FontMeta } from "@/types";
 import { toggleFavorite } from "@/store/font-store";
 import { Toggle } from "@base-ui-components/react/toggle";
 import { BookmarkFilledIcon, BookmarkIcon } from "@/icons/icons";
-import { Accordion } from "@base-ui-components/react/accordion";
 import { getFontStyles } from "@/hooks/use-local-font-query";
 
 export const FontMetaCard = React.memo(
@@ -12,34 +11,72 @@ export const FontMetaCard = React.memo(
     font,
     yfonts,
     ydoc,
+    moreCount,
   }: {
     font: FontMeta;
     yfonts: Y.Array<FontMeta>;
     ydoc: Y.Doc;
+    moreCount: number;
   }) {
     const fontStyles = getFontStyles(font);
 
+    const moreLabel =
+      moreCount > 0
+        ? `+${moreCount} ${moreCount > 1 ? "styles" : "style"}`
+        : "";
+
     return (
-      <div className="border-b-[0.5px] border-foreground/10 p-2 flex flex-col gap-1 min-w-[220px] w-full min-h-[226px] group relative">
+      <div className="border-b-[0.5px] border-foreground/10 p-2 flex flex-col gap-1 min-w-[220px] w-full group relative">
         <div className="flex items-center gap-2 justify-between">
-          <div className="text-xs opacity-80 truncate">{font.fullName}</div>
+          <div className="text-xs opacity-80 truncate">
+            {font.fullName}{" "}
+            {moreCount > 0 && (
+              <span className="opacity-60 bg-foreground/10 px-1.5 py-0.5 rounded-md">
+                {moreLabel}
+              </span>
+            )}
+          </div>
           <Toggle
             aria-label="Favorite"
             pressed={font.favorite ?? false}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onToggle={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
             onPressedChange={() => {
               toggleFavorite({ yfonts, ydoc, font });
             }}
-            className=" outline-none absolute top-2 left-1/2 -translate-x-1/2 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer size-8 flex items-center justify-center rounded-md text-foreground/40 select-none hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[pressed]:text-foreground"
+            className="outline-none absolute top-0 right-2 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer size-8 flex items-center justify-center rounded-md text-foreground/40 select-none hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[pressed]:text-foreground"
             render={(props, state) =>
               state.pressed ? (
-                <button type="button" {...props}>
+                <button
+                  type="button"
+                  {...props}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    props.onClick?.(e);
+                  }}
+                >
                   <span className="sr-only">Remove from favorites</span>
-                  <BookmarkFilledIcon className="size-5" />
+                  <BookmarkFilledIcon className="size-4" />
                 </button>
               ) : (
-                <button type="button" {...props}>
+                <button
+                  type="button"
+                  {...props}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    props.onClick?.(e);
+                  }}
+                >
                   <span className="sr-only">Add to favorites</span>
-                  <BookmarkIcon className="size-5" />
+                  <BookmarkIcon className="size-4" />
                 </button>
               )
             }
@@ -47,24 +84,22 @@ export const FontMetaCard = React.memo(
         </div>
 
         <div
-          className="mt-2 mb-1 flex-1 w-full"
+          className="flex-1 w-full"
           style={{
             containerType: "inline-size",
           }}
         >
           <div
+            className="text-xl"
             style={{
               whiteSpace: "nowrap",
               display: "block",
               ...fontStyles,
-              padding: 8,
-              fontSize: "4cqi",
-              lineHeight: 1.2,
             }}
           >
             The quick brown fox jumps over the lazy dog
           </div>
-          <div className="mt-[90px] text-xs opacity-50 flex justify-between items-center">
+          <div className="text-xs opacity-60 flex justify-between items-center">
             <span>{font.style}</span>
           </div>
         </div>
@@ -86,52 +121,21 @@ export const FontFamilyCard = React.memo(
     yfonts: Y.Array<FontMeta>;
     ydoc: Y.Doc;
   }) => {
-    const [open, setOpen] = React.useState(false);
-
     const firstStyle = fontGroup.styles[0]
       ? { ...fontGroup.styles[0], styles: [] }
       : undefined;
     const moreCount = fontGroup.styles.length - 1;
-    const moreStyles = fontGroup.styles
-      .slice(1)
-      .map((s) => ({ ...s, styles: [] }));
 
     return (
-      <div className="flex flex-col gap-2 w-full min-h-[175px] relative">
+      <div className="flex flex-col gap-2 w-full relative">
         <div className="flex flex-col items-center w-full">
           {firstStyle && (
-            <FontMetaCard font={firstStyle} yfonts={yfonts} ydoc={ydoc} />
-          )}
-          {moreCount > 0 && (
-            <Accordion.Root
-              value={open ? ["more"] : []}
-              onValueChange={(v) =>
-                setOpen(Array.isArray(v) && v.includes("more"))
-              }
-              className="flex-1 w-full"
-            >
-              <Accordion.Item value="more" className="border-0 p-0 m-0 w-full">
-                <Accordion.Header className="p-0 m-0">
-                  <Accordion.Trigger className="outline-none cursor-pointer absolute bottom-5 z-30 left-1/2 -translate-x-1/2 group flex items-center gap-1 bg-transparent p-0 m-0 text-xs hover:underline text-foreground/40 before:absolute before:inset-0 before:content-[''] focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                    {open
-                      ? "Collapse" + " " + fontGroup.family
-                      : `+${moreCount} ${moreCount > 1 ? "styles" : "style"}`}
-                  </Accordion.Trigger>
-                </Accordion.Header>
-                <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-visible p-0 m-0">
-                  <div className="flex flex-wrap">
-                    {moreStyles.map((styleFont, idx) => (
-                      <FontMetaCard
-                        key={styleFont.postscriptName + idx}
-                        font={styleFont}
-                        yfonts={yfonts}
-                        ydoc={ydoc}
-                      />
-                    ))}
-                  </div>
-                </Accordion.Panel>
-              </Accordion.Item>
-            </Accordion.Root>
+            <FontMetaCard
+              font={firstStyle}
+              yfonts={yfonts}
+              ydoc={ydoc}
+              moreCount={moreCount}
+            />
           )}
         </div>
       </div>
