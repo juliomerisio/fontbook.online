@@ -1,4 +1,7 @@
-# Font Book Online
+<p align="center">
+  <img src="public/android-chrome-512x512.png" alt="Font Book Online Logo" width="256" />
+  <h1 align="center" style="text-align: center;">Font Book Online</h1>
+</p>
 
 A modern font viewer for your local fonts, built with Next.js. Preview your local fonts in the browser with a fast, private, and easy-to-use interface.
 
