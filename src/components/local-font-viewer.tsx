@@ -431,7 +431,7 @@ export const LocalFontViewer = () => {
               </Tabs.Tab>
               <Tabs.Tab
                 value="favorites"
-                className=" outline-none text-shadow-basic flex h-7.5 w-19 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80  select-none before:inset-x-0 before:inset-0 before:rounded-md before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[selected]:text-foreground data-[selected]:dark:text-background"
+                className="rounded-lg outline-none text-shadow-basic flex h-7.5 w-19 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80  select-none before:inset-x-0 before:inset-0 before:rounded-md before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[selected]:text-foreground data-[selected]:dark:text-background"
               >
                 Favorites
               </Tabs.Tab>
