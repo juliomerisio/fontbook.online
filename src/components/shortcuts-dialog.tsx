@@ -34,7 +34,7 @@ const SHORTCUTS = [
   },
 ];
 
-export default function ShortcutsDialog() {
+export function ShortcutsDialog() {
   const [showShortcuts, setShowShortcuts] = useQueryState(
     "shortcuts",
     parseAsString.withDefault("closed")

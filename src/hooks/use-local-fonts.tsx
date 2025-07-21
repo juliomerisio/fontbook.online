@@ -29,11 +29,7 @@ export function useLocalFonts({
   return {
     loadAllFonts,
     clearCache,
-    getFontData: fontQuery.getFontData,
     supportAndPermissionStatus,
-    isMonospace: fontQuery.isMonospace,
-    parseFontStyleToWeight: fontQuery.parseFontStyleToWeight,
-    fontWeightLabels: fontQuery.fontWeightLabels,
     yfonts,
     ydoc,
   };

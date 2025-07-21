@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { FontData } from "../types";
+import { FontData, FontMeta } from "../types";
 
 function isSupportQueryLocalFonts(): boolean {
   return typeof window !== "undefined" && "queryLocalFonts" in window;
@@ -30,41 +30,38 @@ function isMonospace(ctx: CanvasRenderingContext2D, fontName: string): boolean {
   return count("i") === count("M") && count("|") === count("%");
 }
 
-function parseFontStyleToWeight(style: string): number {
-  style = style.toLowerCase().replace(/[\s\-_]/g, "");
-  switch (true) {
-    case style.includes("thin"):
-      return 100;
-    case style.includes("extralight"):
-      return 200;
-    case style.includes("light"):
-      return 300;
-    case style.includes("medium"):
-      return 500;
-    case style.includes("semibold"):
-      return 600;
-    case style.includes("extrabold"):
-      return 800;
-    case style.includes("black"):
-    case style.includes("ultrabold"):
-      return 900;
-    case style.includes("bold"):
-      return 700;
-    default:
-      return 400;
-  }
-}
+export const getFontStyles = (font: Omit<FontMeta, "styles">) => {
+  const style = font.style.toLowerCase();
 
-const fontWeightLabels: Record<number, string> = {
-  100: "Thin",
-  200: "ExtraLight",
-  300: "Light",
-  400: "Regular",
-  500: "Medium",
-  600: "SemiBold",
-  700: "Bold",
-  800: "ExtraBold",
-  900: "Black",
+  return {
+    // Try PostScript name first, then family name
+    fontFamily: `"${font.postscriptName}", "${font.family}", sans-serif`,
+    // Use the exact font style from the font metadata
+    fontWeight: style.includes("narrow")
+      ? 400 // Regular weight for Narrow
+      : style.includes("bold")
+      ? 700
+      : style.includes("medium")
+      ? 500
+      : style.includes("light")
+      ? 300
+      : style.includes("black")
+      ? 900
+      : 400, // Default to regular
+    fontStyle:
+      style.includes("italic") || style.includes("oblique")
+        ? "italic"
+        : "normal",
+    fontStretch: style.includes("narrow")
+      ? "condensed"
+      : style.includes("condensed")
+      ? "condensed"
+      : style.includes("extended") || style.includes("expanded")
+      ? "expanded"
+      : "normal",
+    fontFeatureSettings: '"kern" 1',
+    fontVariantLigatures: "common-ligatures",
+  };
 };
 
 export interface useLocalFontQueryType {
@@ -74,8 +71,6 @@ export interface useLocalFontQueryType {
     "granted" | "denied" | "not-supported" | "prompt"
   >;
   isMonospace: (ctx: CanvasRenderingContext2D, fontName: string) => boolean;
-  parseFontStyleToWeight: (style: string) => number;
-  fontWeightLabels: Record<number, string>;
 }
 
 export function useLocalFontQuery(): useLocalFontQueryType {
@@ -110,7 +105,5 @@ export function useLocalFontQuery(): useLocalFontQueryType {
     getFontData,
     supportAndPermissionStatus: checkSupportAndPermission,
     isMonospace,
-    parseFontStyleToWeight,
-    fontWeightLabels,
   };
 }

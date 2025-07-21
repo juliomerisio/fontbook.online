@@ -12,7 +12,6 @@ const presets = {
   },
 };
 
-// Vertex and fragment shader sources
 const vertexShaderSource = `
 attribute vec2 a_position;
 void main() {
@@ -113,7 +112,6 @@ void main() {
     gl_FragColor = vec4(outColor, alpha);
 }`;
 
-// Helper function to convert hex to RGB
 const hexToRgb = (hex: string): [number, number, number] => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
@@ -125,7 +123,6 @@ const hexToRgb = (hex: string): [number, number, number] => {
     : [0, 0, 0];
 };
 
-// Create shader
 const createShader = (
   gl: WebGLRenderingContext,
   type: number,
@@ -143,7 +140,6 @@ const createShader = (
   return shader;
 };
 
-// Create program
 const createProgram = (
   gl: WebGLRenderingContext,
   vertexShader: WebGLShader,
@@ -181,10 +177,8 @@ export const GradientAnimationShader = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Set canvas background to transparent immediately
     canvas.style.backgroundColor = "transparent";
 
-    // Get WebGL context with alpha enabled for transparency
     const gl = canvas.getContext("webgl", {
       alpha: true,
       premultipliedAlpha: false,
@@ -195,10 +189,8 @@ export const GradientAnimationShader = () => {
       return;
     }
 
-    // Set clear color to fully transparent FIRST, before any clear calls
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
-    // Set canvas size
     const resize = () => {
       canvas.width = canvas.clientWidth;
       canvas.height = canvas.clientHeight;
@@ -206,11 +198,9 @@ export const GradientAnimationShader = () => {
     };
     resize();
 
-    // Enable blending for transparency
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    // Create shaders
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
     const fragmentShader = createShader(
       gl,
@@ -219,11 +209,9 @@ export const GradientAnimationShader = () => {
     );
     if (!vertexShader || !fragmentShader) return;
 
-    // Create program
     const program = createProgram(gl, vertexShader, fragmentShader);
     if (!program) return;
 
-    // Get uniform locations
     const uniforms = {
       time: gl.getUniformLocation(program, "u_time"),
       resolution: gl.getUniformLocation(program, "u_resolution"),
@@ -236,7 +224,6 @@ export const GradientAnimationShader = () => {
       fadeIn: gl.getUniformLocation(program, "u_fadeIn"),
     };
 
-    // Create buffer
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(
@@ -245,15 +232,12 @@ export const GradientAnimationShader = () => {
       gl.STATIC_DRAW
     );
 
-    // Setup attributes
     const positionLocation = gl.getAttribLocation(program, "a_position");
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // Use program
     gl.useProgram(program);
 
-    // Store WebGL context and program
     webglRef.current = {
       gl,
       program,
@@ -262,17 +246,14 @@ export const GradientAnimationShader = () => {
       startTime: Date.now(),
     };
 
-    // Animation loop
     const animate = () => {
       const now = Date.now();
       const elapsed = now - webglRef.current!.startTime;
       const currentTime = elapsed * 0.001 * timeSpeed;
 
-      // Calculate fade-in progress (0 to 1)
       const fadeProgress = Math.min(elapsed / fadeInDuration, 1);
       const fadeAlpha = fadeProgress;
 
-      // Clear the canvas with transparent background
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       gl.uniform1f(uniforms.time, currentTime);
@@ -291,11 +272,9 @@ export const GradientAnimationShader = () => {
     };
     animate();
 
-    // Handle resize
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
 
-    // Handle page refresh/beforeunload to prevent white flash
     const handleBeforeUnload = () => {
       if (canvasRef.current) {
         canvasRef.current.style.opacity = "0";
@@ -306,21 +285,17 @@ export const GradientAnimationShader = () => {
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      // Hide canvas immediately to prevent white flash on unmount
       if (canvasRef.current) {
         canvasRef.current.style.opacity = "0";
         canvasRef.current.style.transition = "none";
       }
 
-      // Clear canvas to transparent before cleanup
       if (webglRef.current?.gl) {
         try {
           const { gl } = webglRef.current;
           gl.clearColor(0.0, 0.0, 0.0, 0.0);
           gl.clear(gl.COLOR_BUFFER_BIT);
-        } catch (error) {
-          // Ignore WebGL context errors during cleanup
-        }
+        } catch (error) {}
       }
 
       if (webglRef.current?.animationId) {

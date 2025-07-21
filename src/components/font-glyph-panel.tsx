@@ -1,49 +1,15 @@
 import * as React from "react";
 import { FontMeta } from "@/types";
 import { ScrollArea } from "@base-ui-components/react/scroll-area";
-import ShortcutsDialog from "./shortcuts-dialog";
+import { ShortcutsDialog } from "./shortcuts-dialog";
 import { Radio } from "@base-ui-components/react/radio";
 import { RadioGroup } from "@base-ui-components/react/radio-group";
 import { useMousetrap } from "@/hooks/use-mouse-trap";
-
-const getFontStyles = (font: Omit<FontMeta, "styles">) => {
-  const style = font.style.toLowerCase();
-
-  return {
-    // Try PostScript name first, then family name
-    fontFamily: `"${font.postscriptName}", "${font.family}", sans-serif`,
-    // Use the exact font style from the font metadata
-    fontWeight: style.includes("narrow")
-      ? 400 // Regular weight for Narrow
-      : style.includes("bold")
-      ? 700
-      : style.includes("medium")
-      ? 500
-      : style.includes("light")
-      ? 300
-      : style.includes("black")
-      ? 900
-      : 400, // Default to regular
-    fontStyle:
-      style.includes("italic") || style.includes("oblique")
-        ? "italic"
-        : "normal",
-    fontStretch: style.includes("narrow")
-      ? "condensed"
-      : style.includes("condensed")
-      ? "condensed"
-      : style.includes("extended") || style.includes("expanded")
-      ? "expanded"
-      : "normal",
-    fontFeatureSettings: '"kern" 1',
-    fontVariantLigatures: "common-ligatures",
-  };
-};
+import { getFontStyles } from "@/hooks/use-local-font-query";
 
 export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
   const [selectedStyle, setSelectedStyle] = React.useState<string | null>(null);
 
-  // Get all unique styles
   const allStyles = React.useMemo(() => {
     if (!font) return [];
 
@@ -92,9 +58,7 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
         role="dialog"
         aria-label="Font Glyph Panel"
       >
-        <div className="flex items-center justify-end h-[65px] border-b border-foreground/10 px-4">
-          <ShortcutsDialog />
-        </div>
+        <div className="flex items-center justify-end h-[65px] border-b border-foreground/10 px-4"></div>
         <div className="flex-1 w-full h-full border-l border-foreground/10"></div>
       </div>
     );
@@ -105,7 +69,6 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
   const lowercase = "abcdefghijklmnopqrstuvwxyz";
   const symbols = "0123456789!@#$%^&*()_+-={}[]:;";
 
-  // Find the current style object
   const currentStyle =
     selectedStyle === font.style
       ? font
@@ -163,41 +126,29 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
         )}
       </div>
       <ScrollArea.Root className="flex-1 w-full h-full">
-        <ScrollArea.Viewport className="h-full w-full p-4 pb-40">
-          <div className="flex flex-col gap-4">
+        <ScrollArea.Viewport className="h-full w-full p-4 pb-40 ">
+          <div className="flex flex-col gap-4 ">
             <div className="space-y-4">
               <div className="flex w-full items-center">
                 <div
-                  style={{
-                    ...fontStyles,
-                    whiteSpace: "nowrap",
-                    display: "block",
-                    fontSize: "24px",
-                  }}
+                  className="whitespace-nowrap block text-2xl"
+                  style={fontStyles}
                 >
                   {uppercase}
                 </div>
               </div>
               <div className="flex w-full items-center">
                 <div
-                  style={{
-                    ...fontStyles,
-                    whiteSpace: "nowrap",
-                    display: "block",
-                    fontSize: "24px",
-                  }}
+                  className="whitespace-nowrap block text-2xl"
+                  style={fontStyles}
                 >
                   {lowercase}
                 </div>
               </div>
               <div className="flex w-full items-center">
                 <div
-                  style={{
-                    ...fontStyles,
-                    whiteSpace: "nowrap",
-                    display: "block",
-                    fontSize: "24px",
-                  }}
+                  className="whitespace-nowrap block text-2xl"
+                  style={fontStyles}
                 >
                   {symbols}
                 </div>
@@ -207,38 +158,26 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
             <div className="flex flex-col gap-4 mt-8 border-t -mx-4 px-4 border-dashed border-b border-foreground/10 pt-4">
               <h3 className="text-sm font-medium opacity-60">Preview</h3>
               <div className="space-y-4">
-                <div className="bg-foreground text-background flex items-center -mx-4 px-4 py-4">
+                <div className="bg-foreground text-background flex items-center -mx-4 px-4 py-4 ">
                   <div
-                    style={{
-                      ...fontStyles,
-                      whiteSpace: "nowrap",
-                      display: "block",
-                      fontSize: "24px",
-                    }}
+                    className="whitespace-nowrap block text-2xl"
+                    style={fontStyles}
                   >
                     {pangram}
                   </div>
                 </div>
                 <div className="bg-accent text-foreground dark:text-background flex items-center -mx-4 px-4 py-4">
                   <div
-                    style={{
-                      ...fontStyles,
-                      whiteSpace: "nowrap",
-                      display: "block",
-                      fontSize: "24px",
-                    }}
+                    className="whitespace-nowrap block text-2xl"
+                    style={fontStyles}
                   >
                     {pangram}
                   </div>
                 </div>
                 <div className="bg-background text-foreground flex items-center -mx-4 px-4 py-4">
                   <div
-                    style={{
-                      ...fontStyles,
-                      whiteSpace: "nowrap",
-                      display: "block",
-                      fontSize: "24px",
-                    }}
+                    className="whitespace-nowrap block text-2xl"
+                    style={fontStyles}
                   >
                     {pangram}
                   </div>
@@ -246,7 +185,6 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
               </div>
             </div>
 
-            {/* Style Showcase */}
             <div className="flex flex-col gap-4 ">
               <h3 className="text-sm font-medium opacity-60">Style Showcase</h3>
               <div className="grid grid-cols-2 gap-4">
@@ -277,7 +215,6 @@ export function FontGlyphPanel({ font }: { font: FontMeta | null }) {
               </div>
             </div>
 
-            {/* Font Information */}
             <div className="flex flex-col gap-4 mt-8">
               <h3 className="text-sm font-medium opacity-60">
                 Font Information

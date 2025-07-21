@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useRef,
-  useMemo,
-  useLayoutEffect,
-  useEffect,
-  useCallback,
-} from "react";
+import { useCallback } from "react";
 import { useLocalFonts } from "@/hooks/use-local-fonts";
 import {
   fonts,
@@ -20,195 +14,54 @@ import { Tabs } from "@base-ui-components/react/tabs";
 import { type FontMeta } from "@/types";
 import { useQueryState, parseAsString } from "nuqs";
 
-import { VList, VListHandle } from "virtua";
+import { VListHandle } from "virtua";
 import { useMousetrap } from "@/hooks/use-mouse-trap";
 import { ExtendedKeyboardEvent } from "mousetrap";
 import { FontFamilyCard, FontMetaCard } from "./font-meta-card";
 import { FontPreviewPanel } from "./font-preview-panel";
-import { useMergeRefs } from "@/hooks/use-merge-refs";
-import { Rive } from "./rive";
-import { Logo } from "./logo";
-
-const NotSupported = () => {
-  return (
-    <div className="flex flex-col h-[100dvh] items-center justify-center bg-background">
-      <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10 h-[64px]">
-        <Logo />
-        <div className="w-[90px] "></div>
-      </div>
-
-      <div className="flex flex-col items-center justify-center">
-        <div className="min-w-[300px]  flex h-[300px]">
-          <Rive src="/logo.riv" />
-        </div>
-        <div className="text-balance text-center max-w-[300px]">
-          Local Font Access API is not supported in this browser.
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const PermissionDenied = ({ loadAllFonts }: { loadAllFonts: () => void }) => {
-  return (
-    <div className="flex flex-col h-[100dvh] items-center justify-center bg-background">
-      <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10 h-[64px]">
-        <Logo />
-        <div className="w-[90px] "></div>
-      </div>
-      <div className="flex flex-col  items-center justify-center ">
-        <div className="min-w-[300px]  flex h-[300px]">
-          <Rive src="/logo.riv" />
-        </div>
-        <button
-          className="text-balance text-center cursor-pointer gap-2"
-          onClick={() => {
-            loadAllFonts();
-          }}
-        >
-          <span className="text-shadow-[0_0.5px_0px_rgba(0,0,0,0.15)] group relative isolate inline-flex items-center justify-center overflow-hidden text-left font-medium transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transtion-opacity rounded-md shadow-[0_1px_theme(colors.white/0.07)_inset,0_1px_3px_theme(colors.gray.900/0.2)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-white/10 after:from-[46%] after:to-[54%] after:mix-blend-overlay text-sm h-[1.875rem] px-3 ring-1 bg-foreground/80 dark:bg-background/80 text-white dark:ring-background ring-foreground">
-            Allow font permissions
-          </span>
-        </button>
-        <span className="text-foreground/60 mt-2">
-          to browse your local fonts in your browser
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const EmptyStateFavorites = () => {
-  return (
-    <div className="flex flex-col flex-1  items-center justify-center bg-background">
-      <div className="flex flex-col items-center justify-center min-h-[300px]">
-        <div className="min-w-[300px]  flex h-[300px]">
-          <Rive src="/logo.riv" />
-        </div>
-        <div className="text-foreground/60">No favorites yet</div>
-      </div>
-    </div>
-  );
-};
-
-export function RestorableList<T>({
-  id,
-  data,
-  renderRow,
-  style,
-  overscan = 10,
-  className,
-  vlistRef,
-}: {
-  id: string;
-  data: T[];
-  renderRow: (item: T, index: number) => React.ReactNode;
-  style?: React.CSSProperties;
-  overscan?: number;
-  className?: string;
-  vlistRef?: React.RefObject<VListHandle | null>;
-}) {
-  const cacheKey = "list-cache-" + id;
-
-  const ref = useRef<VListHandle>(null);
-  const mergedRef = useMergeRefs([vlistRef, ref]);
-
-  const [offset, cache] = useMemo(() => {
-    if (typeof window === "undefined") return [undefined, undefined];
-    const serialized = sessionStorage.getItem(cacheKey);
-    if (!serialized) return [undefined, undefined];
-    try {
-      const parsed = JSON.parse(serialized);
-      if (Array.isArray(parsed)) return parsed;
-      if (typeof parsed === "number") return [parsed, undefined];
-      return [undefined, undefined];
-    } catch {
-      return [undefined, undefined];
-    }
-  }, [cacheKey]);
-
-  useLayoutEffect(() => {
-    const currentRef = ref.current;
-    if (!currentRef) return;
-    const handle = currentRef;
-    if (offset !== undefined) {
-      handle.scrollTo(offset);
-    }
-    return () => {
-      if (currentRef) {
-        sessionStorage.setItem(
-          cacheKey,
-          JSON.stringify([currentRef.scrollOffset, currentRef.cache])
-        );
-      }
-    };
-  }, [offset, cacheKey]);
-  useEffect(() => {
-    const currentRef = ref.current;
-
-    const handleBeforeUnload = () => {
-      if (currentRef) {
-        sessionStorage.setItem(
-          cacheKey,
-          JSON.stringify([currentRef.scrollOffset, currentRef.cache])
-        );
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [cacheKey]);
-
-  return (
-    <VList
-      ref={mergedRef}
-      cache={cache}
-      style={style}
-      overscan={overscan}
-      className={className}
-    >
-      {data.map(renderRow)}
-    </VList>
-  );
-}
+import { Logo32 } from "./logo";
+import { NotSupported } from "./not-supported";
+import { PermissionDenied } from "./permission-denied";
+import { RestorableList } from "./restorable-list";
+import { EmptyStateFavorites } from "./empty-state-favorites";
+import { Loading } from "./loading";
 
 export const LocalFontViewer = () => {
-  const {
-    supportAndPermissionStatus,
-    loadAllFonts,
-    clearCache,
-    yfonts,
-    ydoc,
-    parseFontStyleToWeight,
-  } = useLocalFonts({
-    fonts,
-    uiState,
-    documentName: "local-fonts-viewer",
-  });
+  const { supportAndPermissionStatus, loadAllFonts, clearCache, yfonts, ydoc } =
+    useLocalFonts({
+      fonts,
+      uiState,
+      documentName: "local-fonts-viewer",
+    });
 
   const snapshot = useSnapshot(uiState);
   const fontsSnapshot = useSnapshot(fonts);
+
+  const allVListRef = React.useRef<VListHandle | null>(null);
+  const favVListRef = React.useRef<VListHandle | null>(null);
+
   const [tab, setTab] = useQueryState("tab", parseAsString.withDefault("all"));
+  const [activeFontPSName, setActiveFontPSName] = useQueryState(
+    "glyphPanel",
+    parseAsString.withDefault("")
+  );
+
+  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
+  const [sortMode, setSortMode] = React.useState(false);
+  const [sortingIndex, setSortingIndex] = React.useState<number | null>(null);
 
   const normalizeFontMeta = useCallback((font: FontMeta): FontMeta => {
     return {
       ...font,
       styles: Array.isArray(font.styles)
-        ? font.styles.map((s) =>
-            // @ts-expect-error - styles is optional
-            normalizeFontMeta({ ...s, styles: s.styles ?? [] })
-          )
+        ? font.styles.map((s) => normalizeFontMeta({ ...s, styles: [] }))
         : [],
     };
   }, []);
+
   const normalizedFontsSnapshot = React.useMemo(
-    () =>
-      fontsSnapshot.map((f) =>
-        // @ts-expect-error - styles is optional
-        normalizeFontMeta({ ...f, styles: f.styles ?? [] })
-      ),
+    () => fontsSnapshot.map((f) => normalizeFontMeta({ ...f, styles: [] })),
     [fontsSnapshot, normalizeFontMeta]
   );
 
@@ -262,11 +115,6 @@ export const LocalFontViewer = () => {
     [favoritesList]
   );
 
-  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
-  const [sortMode, setSortMode] = React.useState(false);
-  const [sortingIndex, setSortingIndex] = React.useState<number | null>(null);
-
   const currentList =
     tab === "favorites" ? favoritesList : filteredGroupedFonts;
   const currentRefs = tab === "favorites" ? favoritesCardRefs : cardRefs;
@@ -276,7 +124,6 @@ export const LocalFontViewer = () => {
     favorites: 0,
   });
 
-  // Persist last focused index per tab in sessionStorage
   const FOCUS_KEY_PREFIX = "last-focused-index-";
   const saveLastFocusedIndex = (tab: string, idx: number) => {
     if (typeof window !== "undefined") {
@@ -299,9 +146,6 @@ export const LocalFontViewer = () => {
     return idx;
   };
 
-  const allVListRef = React.useRef<VListHandle | null>(null);
-  const favVListRef = React.useRef<VListHandle | null>(null);
-
   const handleSort = useCallback(
     (fromIndex: number, toIndex: number) => {
       if (!yfonts || !ydoc) return;
@@ -309,6 +153,7 @@ export const LocalFontViewer = () => {
       const [removed] = newOrder.splice(fromIndex, 1);
       newOrder.splice(toIndex, 0, removed);
       persistFavoriteOrder(newOrder, yfonts, ydoc);
+
       // Ensure focus follows the item and stays in view
       requestAnimationFrame(() => {
         // TODO: current is null here
@@ -319,7 +164,15 @@ export const LocalFontViewer = () => {
         }
       });
     },
-    [favoritesList, yfonts, ydoc, currentRefs, currentList, tab]
+    [
+      yfonts,
+      ydoc,
+      favoritesList,
+      currentRefs,
+      setActiveFontPSName,
+      currentList,
+      tab,
+    ]
   );
 
   useMousetrap([
@@ -516,24 +369,22 @@ export const LocalFontViewer = () => {
     },
   ]);
 
-  // Query state for active font in panel
-  const [activeFontPSName, setActiveFontPSName] = useQueryState(
-    "glyphPanel",
-    parseAsString.withDefault("")
-  );
+  const currentSelectedFont = React.useMemo(() => {
+    return activeFontPSName
+      ? filteredGroupedFonts.find(
+          (g) =>
+            g.postscriptName === activeFontPSName ||
+            g.styles.some((s) => s.postscriptName === activeFontPSName)
+        ) || null
+      : null;
+  }, [activeFontPSName, filteredGroupedFonts]);
+  const scrollToTop = useCallback(() => {
+    allVListRef.current?.scrollTo(0);
+    favVListRef.current?.scrollTo(0);
+  }, []);
 
   if (snapshot.loading) {
-    return (
-      <div className="min-h-[100dvh] flex flex-row">
-        <div className="flex-1 min-w-0 flex flex-col">
-          <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10 h-[64px]">
-            <Logo />
-
-            <div className="w-[90px] "></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (supportAndPermissionStatus === "not-supported") {
@@ -579,12 +430,7 @@ export const LocalFontViewer = () => {
           className="rounded-md relative"
         >
           <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10">
-            <Logo
-              onClick={() => {
-                allVListRef.current?.scrollTo(0);
-                favVListRef.current?.scrollTo(0);
-              }}
-            />
+            <Logo32 onClick={scrollToTop} />
 
             <Tabs.List className="relative z-0 flex justify-center gap-1 items-center  w-fit  border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
               <Tabs.Tab
@@ -621,7 +467,7 @@ export const LocalFontViewer = () => {
                   key={fontGroup.family + index}
                   ref={cardRefs[index]}
                   tabIndex={0}
-                  className="font-card group focus-visible:bg-foreground/5"
+                  className="outline-none    group focus-visible:bg-foreground/5"
                   onFocus={() => {
                     lastFocusedIndexRef.current[tab] = index;
                     setActiveFontPSName(fontGroup.postscriptName);
@@ -631,7 +477,6 @@ export const LocalFontViewer = () => {
                     fontGroup={fontGroup}
                     yfonts={yfonts}
                     ydoc={ydoc}
-                    parseFontStyleToWeight={parseFontStyleToWeight}
                   />
                 </div>
               )}
@@ -660,7 +505,7 @@ export const LocalFontViewer = () => {
                     key={font.postscriptName}
                     ref={favoritesCardRefs[index]}
                     tabIndex={0}
-                    className={`font-card group focus-visible:bg-foreground/5 cursor-grab ${
+                    className={`outline-none group focus-visible:bg-foreground/5 cursor-grab ${
                       draggedIndex === index ? "opacity-50" : ""
                     } ${
                       dragOverIndex === index ? "ring-2 ring-blue-400" : ""
@@ -699,20 +544,14 @@ export const LocalFontViewer = () => {
                       setDragOverIndex(null);
                     }}
                   >
-                    <FontMetaCard
-                      font={font}
-                      yfonts={yfonts}
-                      ydoc={ydoc}
-                      parseFontStyleToWeight={parseFontStyleToWeight}
-                    />
+                    <FontMetaCard font={font} yfonts={yfonts} ydoc={ydoc} />
                   </div>
                 )}
                 style={{
-                  flex: 1,
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
                 }}
-                className="overflow-x-hidden"
+                className="flex-1 overflow-x-hidden"
                 vlistRef={favVListRef}
               />
             )}
@@ -720,17 +559,8 @@ export const LocalFontViewer = () => {
           </Tabs.Panel>
         </Tabs.Root>
       </div>
-      <FontPreviewPanel
-        font={
-          activeFontPSName
-            ? filteredGroupedFonts.find(
-                (g) =>
-                  g.postscriptName === activeFontPSName ||
-                  g.styles.some((s) => s.postscriptName === activeFontPSName)
-              ) || null
-            : null
-        }
-      />
+
+      <FontPreviewPanel font={currentSelectedFont} />
     </div>
   );
 };
