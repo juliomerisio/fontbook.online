@@ -11,12 +11,12 @@ export const FontMetaCard = React.memo(
     font,
     yfonts,
     ydoc,
-    moreCount,
+    moreCount = 0,
   }: {
     font: FontMeta;
     yfonts: Y.Array<FontMeta>;
     ydoc: Y.Doc;
-    moreCount: number;
+    moreCount?: number;
   }) {
     const fontStyles = getFontStyles(font);
 

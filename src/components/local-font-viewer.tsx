@@ -53,8 +53,6 @@ export const LocalFontViewer = () => {
     parseAsString.withDefault("")
   );
 
-  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
   const [sortMode, setSortMode] = React.useState(false);
   const [sortingIndex, setSortingIndex] = React.useState<number | null>(null);
 
@@ -545,43 +543,11 @@ export const LocalFontViewer = () => {
                     key={font.postscriptName}
                     ref={favoritesCardRefs[index]}
                     tabIndex={0}
-                    className={`outline-none group focus-visible:bg-foreground/5 cursor-grab ${
-                      draggedIndex === index ? "opacity-50" : ""
-                    } ${
-                      dragOverIndex === index ? "ring-2 ring-blue-400" : ""
-                    } ${
+                    className={`outline-none group focus-visible:bg-foreground/5 ${
                       sortMode && sortingIndex === index
                         ? "ring-2 ring-accent"
                         : ""
                     }`}
-                    onFocus={() => {
-                      lastFocusedIndexRef.current[tab] = index;
-                      setActiveFontPSName(font.postscriptName);
-                    }}
-                    onDragStart={() => {
-                      setDraggedIndex(index);
-                    }}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      setDragOverIndex(index);
-                    }}
-                    onDragLeave={() => setDragOverIndex(null)}
-                    onDrop={() => {
-                      if (draggedIndex == null || draggedIndex === index)
-                        return;
-                      const newOrder = [...favoritesList];
-                      const [removed] = newOrder.splice(draggedIndex, 1);
-                      newOrder.splice(index, 0, removed);
-                      if (yfonts && ydoc) {
-                        persistFavoriteOrder(newOrder, yfonts, ydoc);
-                      }
-                      setDraggedIndex(null);
-                      setDragOverIndex(null);
-                    }}
-                    onDragEnd={() => {
-                      setDraggedIndex(null);
-                      setDragOverIndex(null);
-                    }}
                   >
                     <FontMetaCard font={font} yfonts={yfonts} ydoc={ydoc} />
                   </div>
