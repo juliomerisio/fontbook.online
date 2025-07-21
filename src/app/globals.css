@@ -5,7 +5,7 @@
   --foreground:oklch(0.1559 0.0074 102.71);
   --accent: #FFA112;
   --border-dashed: oklch(0.25 0.0074 102.71 / 1); 
-  --drop-shadow-text: 0 0.5px 0px rgba(0, 0, 0, 0.15);
+  --text-shadow-basic: 0 0.5px 0px rgba(0, 0, 0, 0.45);
 }
 
 @theme inline {
@@ -15,7 +15,7 @@
   --font-mono: var(--font-geist-mono);
   --color-accent: var(--accent);
   --color-dashed: var(--border-dashed);
-  --drop-shadow-text: var(--drop-shadow-text);
+  --text-shadow-basic: var(--text-shadow-basic);
   
 }
 

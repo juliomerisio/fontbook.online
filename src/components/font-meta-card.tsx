@@ -14,8 +14,8 @@ export const FontMetaCard = React.memo(
     ydoc,
   }: {
     font: FontMeta;
-    yfonts: Y.Array<FontMeta> | null;
-    ydoc: Y.Doc | null;
+    yfonts: Y.Array<FontMeta>;
+    ydoc: Y.Doc;
   }) {
     const fontStyles = getFontStyles(font);
 
@@ -27,9 +27,7 @@ export const FontMetaCard = React.memo(
             aria-label="Favorite"
             pressed={font.favorite ?? false}
             onPressedChange={() => {
-              if (yfonts && ydoc) {
-                toggleFavorite({ yfonts, ydoc, font });
-              }
+              toggleFavorite({ yfonts, ydoc, font });
             }}
             className="absolute top-2 left-1/2 -translate-x-1/2 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer size-8 flex items-center justify-center rounded-sm text-foreground/40 select-none hover:text-foreground focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[pressed]:text-foreground"
             render={(props, state) =>
@@ -85,9 +83,11 @@ export const FontFamilyCard = React.memo(
     ydoc,
   }: {
     fontGroup: FontMeta;
-    yfonts: Y.Array<FontMeta> | null;
-    ydoc: Y.Doc | null;
+    yfonts: Y.Array<FontMeta>;
+    ydoc: Y.Doc;
   }) => {
+    const [open, setOpen] = React.useState(false);
+
     const firstStyle = fontGroup.styles[0]
       ? { ...fontGroup.styles[0], styles: [] }
       : undefined;
@@ -96,7 +96,6 @@ export const FontFamilyCard = React.memo(
       .slice(1)
       .map((s) => ({ ...s, styles: [] }));
 
-    const [open, setOpen] = React.useState(false);
     return (
       <div className="flex flex-col gap-2 w-full min-h-[175px] relative">
         <div className="flex flex-col items-center w-full">
