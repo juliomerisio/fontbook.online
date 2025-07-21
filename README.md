@@ -1,5 +1,9 @@
+# Font Book Online
+
 <p align="center">
-  <img src="public/android-chrome-512x512.png" alt="Font Book Online Logo" width="256" />
+  <a href="https://fontbook.online">
+    <img src="public/android-chrome-512x512.png" alt="Font Book Online Logo" width="256" />
+  </a>
   <h1 align="center" style="text-align: center;">Font Book Online</h1>
 </p>
 
@@ -17,6 +21,8 @@ A modern font viewer for your local fonts, built with Next.js. Preview your loca
 - 🎨 Beautiful and responsive UI
 - 🏃‍♂️ Fast and efficient font loading
 - 🔒 Privacy-focused - all processing happens locally
+- 🔍 Search fonts by family, style, and postscript name (all persisted in the URL)
+- 🔄 Scroll position restoration between tabs and page reloads
 
 ## Browser Compatibility
 
@@ -59,6 +65,18 @@ pnpm dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Keyboard Shortcuts
+
+Font Book Online is designed for keyboard-first navigation:
+
+- `↑/k` - Navigate up
+- `↓/j` - Navigate down
+- `f` - Toggle favorite
+- `t` - Switch between All/Favorites tabs
+- `space` - Toggle sort mode (in Favorites)
+- `/` - Focus search
+- `esc` - Clear search / Exit sort mode / Close panels
+
 ## PWA Features
 
 Font Book Online is a Progressive Web App (PWA) that offers:
@@ -71,15 +89,6 @@ Font Book Online is a Progressive Web App (PWA) that offers:
 To install:
 - **Desktop Chrome/Edge**: Click the install button in your browser's address bar
 - **Other browsers**: Installation not available due to Local Font Access API limitations
-
-## Keyboard Shortcuts
-
-- `↑/k` - Navigate up
-- `↓/j` - Navigate down
-- `f` - Toggle favorite
-- `t` - Switch between All/Favorites tabs
-- `space` - Toggle sort mode (in Favorites)
-- `esc` - Exit sort mode/close panels
 
 ## Contributing
 

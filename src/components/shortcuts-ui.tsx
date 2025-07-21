@@ -27,6 +27,7 @@ export enum Keys {
   PageDown = "PageDown",
   PrintScreen = "PrintScreen",
   Pause = "Pause",
+  ForwardSlash = "/",
 }
 
 export const DEFAULT_KEY_MAPPINGS = {
@@ -121,6 +122,10 @@ export const DEFAULT_KEY_MAPPINGS = {
   [Keys.Pause]: {
     symbols: { mac: "⎉", default: "Pause" },
     label: "Pause/Break",
+  },
+  [Keys.ForwardSlash]: {
+    symbols: { default: "/" },
+    label: "Search",
   },
 };
 
