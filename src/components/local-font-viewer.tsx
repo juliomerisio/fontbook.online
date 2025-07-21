@@ -476,7 +476,7 @@ export const LocalFontViewer = () => {
             </div>
 
             {tab === "all" ? (
-              <div className="relative">
+              <div className="relative w-[200px]">
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -487,7 +487,7 @@ export const LocalFontViewer = () => {
                 />
               </div>
             ) : (
-              <div className="w-[90px]"></div>
+              <div className="w-[200px]"></div>
             )}
           </div>
 
