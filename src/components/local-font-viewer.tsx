@@ -482,7 +482,7 @@ export const LocalFontViewer = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search fonts... (/)"
+                  placeholder="Search"
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="px-3 py-1.5 rounded-md border border-foreground/10 bg-accent/5 text-sm focus:outline-none focus:ring-1 focus:ring-accent"

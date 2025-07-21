@@ -178,7 +178,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                         {pangram}
                       </div>
                     </div>
-                    <div className="bg-background text-foreground flex items-center -mx-4 px-4 py-4">
+                    <div className="bg-background text-foreground flex items-center -mx-4 px-4 py-4 border border-foreground/50">
                       <div
                         className="whitespace-nowrap block text-xl overflow-hidden"
                         style={fontStyles}
