@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useDeferredValue } from "react";
 import { useLocalFonts } from "@/hooks/use-local-fonts";
 import {
   fonts,
@@ -13,7 +13,7 @@ import * as React from "react";
 import { Tabs } from "@base-ui-components/react/tabs";
 import { type FontMeta } from "@/types";
 import { useQueryState, parseAsString } from "nuqs";
-
+import { matchSorter } from "match-sorter";
 import { VListHandle } from "virtua";
 import { useMousetrap } from "@/hooks/use-mouse-trap";
 import { ExtendedKeyboardEvent } from "mousetrap";
@@ -36,6 +36,13 @@ export const LocalFontViewer = () => {
 
   const snapshot = useSnapshot(uiState);
   const fontsSnapshot = useSnapshot(fonts);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  const [searchQuery, setSearchQuery] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  );
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
   const allVListRef = React.useRef<VListHandle | null>(null);
   const favVListRef = React.useRef<VListHandle | null>(null);
@@ -97,13 +104,22 @@ export const LocalFontViewer = () => {
   }, [groupedFonts, tab]);
 
   const filteredGroupedFonts = React.useMemo(() => {
+    let fonts = groupedFonts;
+
     if (tab === "favorites") {
-      return groupedFonts.filter((group) =>
+      return fonts.filter((group) =>
         group.styles.some((style) => style.favorite)
       );
     }
-    return groupedFonts;
-  }, [groupedFonts, tab]);
+
+    if (deferredSearchQuery.trim()) {
+      fonts = matchSorter(fonts, deferredSearchQuery, {
+        keys: ["family", "postscriptName", "style"],
+        threshold: matchSorter.rankings.CONTAINS,
+      });
+    }
+    return fonts;
+  }, [groupedFonts, deferredSearchQuery, tab]);
 
   const cardRefs = React.useMemo(
     () => filteredGroupedFonts.map(() => React.createRef<HTMLDivElement>()),
@@ -172,13 +188,22 @@ export const LocalFontViewer = () => {
       },
     },
     {
+      keys: ["/"],
+      callback: (e: ExtendedKeyboardEvent) => {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      },
+    },
+    {
       keys: ["escape"],
       callback: (e: ExtendedKeyboardEvent) => {
         e.preventDefault();
-        if (sortMode) {
+        if (document.activeElement === searchInputRef.current || searchQuery) {
+          setSearchQuery("");
+          searchInputRef.current?.blur();
+        } else if (sortMode) {
           setSortMode(false);
           setSortingIndex(null);
-          // Keep focus on the current item when exiting sort mode
           const currentIndex = currentRefs.findIndex(
             (ref) => ref.current === document.activeElement
           );
@@ -373,6 +398,11 @@ export const LocalFontViewer = () => {
     favVListRef.current?.scrollTo(0);
   }, []);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+  };
+
   if (snapshot.loading || !yfonts || !ydoc) {
     return <Loading />;
   }
@@ -422,26 +452,41 @@ export const LocalFontViewer = () => {
           <div className="flex gap-2 absolute top-0 py-2 w-full justify-between items-center bg-background px-4 border-b border-foreground/10">
             <Logo32 onClick={scrollToTop} />
 
-            <Tabs.List className="relative z-0 flex justify-center gap-1 items-center  w-fit  border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
-              <Tabs.Tab
-                value="all"
-                className="rounded-lg outline-none text-shadow-basic flex h-7.5 w-19 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80  select-none before:inset-x-0 before:inset-0 before:rounded-md before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[selected]:text-foreground data-[selected]:dark:text-background"
-              >
-                All
-              </Tabs.Tab>
-              <Tabs.Tab
-                value="favorites"
-                className="rounded-lg outline-none text-shadow-basic flex h-7.5 w-19 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80  select-none before:inset-x-0 before:inset-0 before:rounded-md before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[selected]:text-foreground data-[selected]:dark:text-background"
-              >
-                Favorites
-              </Tabs.Tab>
+            <div className="flex items-center gap-4">
+              <Tabs.List className="relative z-0 flex justify-center gap-1 items-center w-fit border border-foreground/10 rounded-md px-2 py-2 bg-accent/5">
+                <Tabs.Tab
+                  value="all"
+                  className="rounded-lg outline-none text-shadow-basic flex h-7.5 w-19 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80  select-none before:inset-x-0 before:inset-0 before:rounded-md before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[selected]:text-foreground data-[selected]:dark:text-background"
+                >
+                  All
+                </Tabs.Tab>
+                <Tabs.Tab
+                  value="favorites"
+                  className="rounded-lg outline-none text-shadow-basic flex h-7.5 w-19 items-center justify-center border-0 px-2 text-sm font-medium break-keep whitespace-nowrap text-foreground/80  select-none before:inset-x-0 before:inset-0 before:rounded-md before:outline-offset-0 before:outline-blue-800 hover:text-foreground focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[selected]:text-foreground data-[selected]:dark:text-background"
+                >
+                  Favorites
+                </Tabs.Tab>
 
-              <Tabs.Indicator className="drop-shadow-2xl absolute top-1/2 left-0 z-[-1] h-8 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group  isolate before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transition-opacity before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-[#FFC61F]/50 after:from-[46%] after:to-[84%] after:mix-blend-overlay shadow-[0_1px_rgba(255,193,31,0.07)_inset,0_1px_3px_rgba(252,208,86,0.2)] bg-[var(--accent)] ring-1 ring-[var(--accent)]">
-                <div className="absolute inset-0 -z-20 rounded-md bg-[var(--accent)] opacity-20 blur-[16px]" />
-              </Tabs.Indicator>
-            </Tabs.List>
+                <Tabs.Indicator className="drop-shadow-2xl absolute top-1/2 left-0 z-[-1] h-8 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] -translate-y-1/2 rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group  isolate before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transition-opacity before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-[#FFC61F]/50 after:from-[46%] after:to-[84%] after:mix-blend-overlay shadow-[0_1px_rgba(255,193,31,0.07)_inset,0_1px_3px_rgba(252,208,86,0.2)] bg-[var(--accent)] ring-1 ring-[var(--accent)]">
+                  <div className="absolute inset-0 -z-20 rounded-md bg-[var(--accent)] opacity-20 blur-[16px]" />
+                </Tabs.Indicator>
+              </Tabs.List>
+            </div>
 
-            <div className="w-[90px]"></div>
+            {tab === "all" ? (
+              <div className="relative">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search fonts... (/)"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="px-3 py-1.5 rounded-md border border-foreground/10 bg-accent/5 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+            ) : (
+              <div className="w-[90px]"></div>
+            )}
           </div>
 
           <Tabs.Panel

@@ -4,37 +4,34 @@ import { ShortcutsProvider, KeyCombo, Keys } from "./shortcuts-ui";
 import { parseAsString, useQueryState } from "nuqs";
 import { useMousetrap } from "@/hooks/use-mouse-trap";
 
-const SHORTCUTS = [
+const shortcuts = [
   {
-    keys: [Keys.ArrowDown],
-    alt: ["j"],
-    description: "Move focus to next font",
+    keys: [Keys.ArrowUp, "k"],
+    description: "Navigate up",
   },
   {
-    keys: [" Space"],
-    description: "Enter/exit drag mode for focused font (favorites tab)",
-  },
-  {
-    keys: ["r"],
-    description: "Shuffle focused font styles",
-  },
-  {
-    keys: [Keys.ArrowUp],
-    alt: ["k"],
-    description: "Move focus to previous font",
+    keys: [Keys.ArrowDown, "j"],
+    description: "Navigate down",
   },
   {
     keys: ["f"],
-    description: "Toggle favorite for focused font",
+    description: "Toggle favorite",
   },
   {
     keys: ["t"],
     description: "Toggle between All and Favorites tabs",
   },
   {
-    keys: [" Esc"],
-    description:
-      "Close shortcuts dialog / Close active font panel / Exit drag mode",
+    keys: [Keys.Space],
+    description: "Toggle sort mode (in Favorites)",
+  },
+  {
+    keys: [Keys.Escape],
+    description: "Clear search / Exit sort mode / Close panels",
+  },
+  {
+    keys: [Keys.ForwardSlash],
+    description: "Focus search",
   },
 ];
 
@@ -101,22 +98,14 @@ export function ShortcutsDialog() {
             <div className="mb-6">
               <table className="w-full text-left text-sm">
                 <tbody>
-                  {SHORTCUTS.map((shortcut, idx) => (
-                    <tr key={idx}>
+                  {shortcuts.map((shortcut) => (
+                    <tr key={shortcut.description}>
                       <td className="py-2 text-foreground/80">
                         {shortcut.description}
                       </td>
                       <td className="pr-4 whitespace-nowrap">
                         <div className="flex gap-2 items-center justify-end">
                           <KeyCombo keyNames={shortcut.keys} />
-                          {shortcut.alt && (
-                            <>
-                              <span className="text-foreground/40 text-xs">
-                                or
-                              </span>
-                              <KeyCombo keyNames={shortcut.alt} />
-                            </>
-                          )}
                         </div>
                       </td>
                     </tr>

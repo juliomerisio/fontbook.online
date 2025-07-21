@@ -13,6 +13,7 @@
     "@rive-app/react-webgl2": "^4.22.1",
     "clsx": "^2.1.1",
     "lodash.defaultsdeep": "^4.6.1",
+    "match-sorter": "^8.0.3",
     "mousetrap": "^1.6.5",
     "next": "15.4.1",
     "next-pwa": "^5.6.0",
