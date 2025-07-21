@@ -5,40 +5,18 @@ import { toggleFavorite } from "@/store/font-store";
 import { Toggle } from "@base-ui-components/react/toggle";
 import { BookmarkFilledIcon, BookmarkIcon } from "@/icons/icons";
 import { Accordion } from "@base-ui-components/react/accordion";
+import { getFontStyles } from "@/hooks/use-local-font-query";
 
 export const FontMetaCard = React.memo(
   function FontMetaCard({
     font,
     yfonts,
     ydoc,
-    parseFontStyleToWeight,
   }: {
     font: FontMeta;
     yfonts: Y.Array<FontMeta> | null;
     ydoc: Y.Doc | null;
-    parseFontStyleToWeight: (style: string) => number;
   }) {
-    const getFontStyles = (font: FontMeta) => {
-      const style = font.style.toLowerCase();
-
-      return {
-        // Try PostScript name first, then family name
-        fontFamily: `"${font.postscriptName}", "${font.family}", sans-serif`,
-        fontWeight: parseFontStyleToWeight(font.style),
-        fontStyle:
-          style.includes("italic") || style.includes("oblique")
-            ? "italic"
-            : "normal",
-        fontStretch: style.includes("condensed")
-          ? "condensed"
-          : style.includes("extended") || style.includes("expanded")
-          ? "expanded"
-          : "normal",
-        fontFeatureSettings: '"kern" 1',
-        fontVariantLigatures: "common-ligatures",
-      };
-    };
-
     const fontStyles = getFontStyles(font);
 
     return (
@@ -105,12 +83,10 @@ export const FontFamilyCard = React.memo(
     fontGroup,
     yfonts,
     ydoc,
-    parseFontStyleToWeight,
   }: {
     fontGroup: FontMeta;
     yfonts: Y.Array<FontMeta> | null;
     ydoc: Y.Doc | null;
-    parseFontStyleToWeight: (style: string) => number;
   }) => {
     const firstStyle = fontGroup.styles[0]
       ? { ...fontGroup.styles[0], styles: [] }
@@ -125,12 +101,7 @@ export const FontFamilyCard = React.memo(
       <div className="flex flex-col gap-2 w-full min-h-[175px] relative">
         <div className="flex flex-col items-center w-full">
           {firstStyle && (
-            <FontMetaCard
-              font={firstStyle}
-              yfonts={yfonts}
-              ydoc={ydoc}
-              parseFontStyleToWeight={parseFontStyleToWeight}
-            />
+            <FontMetaCard font={firstStyle} yfonts={yfonts} ydoc={ydoc} />
           )}
           {moreCount > 0 && (
             <Accordion.Root
@@ -156,7 +127,6 @@ export const FontFamilyCard = React.memo(
                         font={styleFont}
                         yfonts={yfonts}
                         ydoc={ydoc}
-                        parseFontStyleToWeight={parseFontStyleToWeight}
                       />
                     ))}
                   </div>

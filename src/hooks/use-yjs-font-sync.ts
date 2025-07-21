@@ -128,7 +128,6 @@ export function useYjsFontSync(props: useYjsFontSyncType) {
     persistFontsToYjs,
     ydoc: ydocRef.current,
     yfonts: yfontsRef.current,
-    persistence: persistenceRef.current,
   };
 }
 function createYjsFontDoc(documentName: string): {
