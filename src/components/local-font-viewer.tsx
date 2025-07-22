@@ -509,6 +509,15 @@ export const LocalFontViewer = () => {
                     lastFocusedIndexRef.current[tab] = index;
                     setActiveFontPSName(fontGroup.postscriptName);
                   }}
+                  onFocus={(e) => {
+                    const isPressingFavorite =
+                      e.target.ariaLabel === "Favorite";
+
+                    if (!isPressingFavorite) {
+                      setActiveFontPSName(fontGroup.postscriptName);
+                      lastFocusedIndexRef.current[tab] = index;
+                    }
+                  }}
                 >
                   <FontFamilyCard
                     fontGroup={fontGroup}
@@ -545,6 +554,15 @@ export const LocalFontViewer = () => {
                     onClick={() => {
                       lastFocusedIndexRef.current[tab] = index;
                       setActiveFontPSName(font.postscriptName);
+                    }}
+                    onFocus={(e) => {
+                      const isPressingFavorite =
+                        e.target.ariaLabel === "Favorite";
+
+                      if (!isPressingFavorite) {
+                        setActiveFontPSName(font.postscriptName);
+                        lastFocusedIndexRef.current[tab] = index;
+                      }
                     }}
                     className={`outline-none group focus:bg-foreground/5 ${
                       sortMode && sortingIndex === index
