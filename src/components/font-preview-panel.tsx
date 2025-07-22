@@ -128,7 +128,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
           </div>
           <ScrollArea.Root className="flex-1 w-full h-full ">
             <ScrollArea.Viewport
-              className="h-full w-full p-4 pb-40 overflow-hidden"
+              className="h-full w-full p-4 pb-60 overflow-hidden"
               tabIndex={-1}
             >
               <div className="flex flex-col gap-4 ">

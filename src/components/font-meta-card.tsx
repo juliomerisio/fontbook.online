@@ -31,7 +31,7 @@ export const FontMetaCard = React.memo(
           <div className="text-xs opacity-80 truncate gap-2 flex items-center">
             {font.fullName}
             {moreCount > 0 && (
-              <span className="opacity-90 bg-accent/20 px-1.5 py-0.5 rounded-md">
+              <span className="opacity-90 bg-accent/20 px-1.5 py-0.5 rounded-md border border-foreground/10">
                 {moreLabel}
               </span>
             )}
