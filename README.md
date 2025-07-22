@@ -12,13 +12,11 @@ A modern font viewer for your local fonts, built with Next.js. Preview your loca
 ## Features
 
 - 🔍 Preview and explore your local system fonts
-- 💫 Real-time font rendering with customizable preview text
 - ⭐️ Favorite fonts for quick access
 - 🏷️ Organize fonts by family and style
 - 📱 PWA support - install as a desktop app
 - ⌨️ Keyboard shortcuts for power users
-- 🔄 Real-time collaboration with Yjs
-- 🎨 Beautiful and responsive UI
+- 🎨 Beautiful UI
 - 🏃‍♂️ Fast and efficient font loading
 - 🔒 Privacy-focused - all processing happens locally
 - 🔍 Search fonts by family, style, and postscript name (all persisted in the URL)
