@@ -89,7 +89,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                 <h2 className="text-md font-mono font-medium truncate text-foreground">
                   {font.family}
                 </h2>
-                <span className="text-xs opacity-60">
+                <span className="text-xs opacity-80">
                   {currentStyle?.style}
                 </span>
               </div>
@@ -100,7 +100,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
           <div className="py-4 z-10 border-b border-foreground/50 border-dashed">
             {(font.styles?.length ?? 0) > 0 && (
               <div className="px-4">
-                <h3 className="text-sm font-medium opacity-60 mb-4">Styles</h3>
+                <h3 className="text-sm font-medium opacity-80 mb-4">Styles</h3>
                 <RadioGroup
                   value={selectedStyle || font.style}
                   onValueChange={handleValueChange}
@@ -160,7 +160,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                 </div>
 
                 <div className="flex flex-col gap-4 border-t -mx-4 px-4 border-dashed border-b border-foreground/50 py-4">
-                  <h3 className="text-sm font-medium opacity-60">Preview</h3>
+                  <h3 className="text-sm font-medium opacity-80">Preview</h3>
                   <div className="space-y-1">
                     <div className="bg-foreground text-background flex items-center -mx-4 px-4 py-4">
                       <div
@@ -190,7 +190,7 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <h3 className="text-sm font-medium opacity-60">
+                  <h3 className="text-sm font-medium opacity-80">
                     Style Showcase
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
@@ -222,16 +222,16 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
                 </div>
 
                 <div className="flex flex-col gap-2 ">
-                  <h3 className="text-sm font-medium opacity-60">
+                  <h3 className="text-sm font-medium opacity-80">
                     Font Information
                   </h3>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-sm font-medium">
                     <p>
-                      <span className="opacity-60">PostScript Name:</span>{" "}
+                      <span className="opacity-80">PostScript Name:</span>{" "}
                       {font.postscriptName}
                     </p>
                     <p>
-                      <span className="opacity-60">Style:</span> {font.style}
+                      <span className="opacity-80">Style:</span> {font.style}
                     </p>
                   </div>
                 </div>

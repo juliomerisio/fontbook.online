@@ -28,7 +28,7 @@ export const FontMetaCard = React.memo(
     return (
       <div className="border-b-[0.5px] border-foreground/10 p-4 flex flex-col gap-1 min-w-[220px] w-full group relative">
         <div className="flex items-center gap-2 justify-between">
-          <div className="text-xs opacity-80 truncate gap-2 flex items-center">
+          <div className="text-xs font-medium opacity-80 truncate gap-2 flex items-center">
             {font.fullName}
             {moreCount > 0 && (
               <span className="opacity-90 bg-accent/20 px-1.5 py-0.5 rounded-md border border-foreground/10">
@@ -83,12 +83,7 @@ export const FontMetaCard = React.memo(
           />
         </div>
 
-        <div
-          className="flex-1 w-full"
-          style={{
-            containerType: "inline-size",
-          }}
-        >
+        <div className="flex-1 w-full">
           <div
             className="text-xl"
             style={{
@@ -99,7 +94,7 @@ export const FontMetaCard = React.memo(
           >
             The quick brown fox jumps over the lazy dog
           </div>
-          <div className="text-xs opacity-60 flex justify-between items-center">
+          <div className="text-xs opacity-80 flex justify-between items-center">
             <span>{font.style}</span>
           </div>
         </div>
