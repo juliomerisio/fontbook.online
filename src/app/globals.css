@@ -19,9 +19,14 @@
   
 }
 
+*::selection {
+  background-color: color-mix(in oklch, var(--accent), white 10%);
+  color: var(--foreground);
+}
+
 @media (prefers-color-scheme: dark) {
   *::selection {
-    background-color: color-mix(in oklch, var(--accent), white 10%);
+    background-color: color-mix(in oklch, var(--accent), black 10%);
     color: var(--background);
   }
   
@@ -35,10 +40,7 @@
 }
 
 
-*::selection {
-  background-color: color-mix(in oklch, var(--accent), white 10%);
-  color: var(--foreground);
-}
+
 
 
 body {
