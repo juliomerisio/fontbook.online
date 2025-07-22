@@ -483,7 +483,7 @@ export const LocalFontViewer = () => {
                   placeholder="Search"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  className="px-3 py-1.5 rounded-md border border-foreground/10 bg-accent/5 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                  className="hidden lg:block px-3 py-1.5 rounded-md border border-foreground/10 bg-accent/5 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
             ) : (
