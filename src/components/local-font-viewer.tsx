@@ -506,7 +506,6 @@ export const LocalFontViewer = () => {
                   tabIndex={0}
                   className="outline-none group focus:bg-foreground/5"
                   onClick={() => {
-                    console.log("clicked");
                     lastFocusedIndexRef.current[tab] = index;
                     setActiveFontPSName(fontGroup.postscriptName);
                   }}
@@ -543,7 +542,11 @@ export const LocalFontViewer = () => {
                     key={font.postscriptName}
                     ref={favoritesCardRefs[index]}
                     tabIndex={0}
-                    className={`outline-none group focus-visible:bg-foreground/5 ${
+                    onClick={() => {
+                      lastFocusedIndexRef.current[tab] = index;
+                      setActiveFontPSName(font.postscriptName);
+                    }}
+                    className={`outline-none group focus:bg-foreground/5 ${
                       sortMode && sortingIndex === index
                         ? "ring-2 ring-accent"
                         : ""
