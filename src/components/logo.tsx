@@ -176,7 +176,7 @@ export function Logo32(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
 
 export const Logo64 = () => {
   return (
-    <div className="w-16 h-16 rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group isolate before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transition-opacity before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-[#FFC61F]/50 after:from-[46%] after:to-[84%] after:mix-blend-overlay shadow-[0_1px_rgba(255,193,31,0.07)_inset,0_1px_3px_rgba(252,208,86,0.2)] bg-[var(--accent)] ring-1 ring-[var(--accent)] relative flex items-center justify-center drop-shadow-2xl">
+    <div className="w-16 h-16 rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0.36,0,1)] group isolate before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] before:transition-opacity before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-white/20 before:opacity-50 after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-[#FFC61F]/50 after:from-[46%] after:to-[84%] after:mix-blend-overlay shadow-[0_1px_rgba(255,193,31,0.07)_inset,0_1px_3px_rgba(252,208,86,0.2)] bg-[var(--accent)] ring-1 ring-[var(--accent)] relative flex items-center justify-center">
       <div className="absolute inset-0 -z-20 rounded-md bg-[var(--accent)] opacity-20 blur-[16px]" />
       <svg
         viewBox="0 0 180 126"
