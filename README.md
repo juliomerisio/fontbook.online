@@ -105,7 +105,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - Built with [Next.js](https://nextjs.org/)
-- Real-time collaboration powered by [Yjs](https://yjs.dev/)
 - UI components from [Base UI Components](https://github.com/juliomerisio/base-ui-components)
 - Uses the [Local Font Access API](https://developer.mozilla.org/en-US/docs/Web/API/Local_Font_Access_API)
 
