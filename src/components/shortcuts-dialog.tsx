@@ -64,7 +64,7 @@ export function ShortcutsDialog() {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black/10 backdrop-blur transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0" />
-        <Dialog.Popup className="overflow-hidden fixed top-1/2 left-1/2 -mt-8 w-[min(580px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-background p-6 text-foreground outline outline-1 outline-foreground/10 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+        <Dialog.Popup className="overflow-hidden fixed top-1/2 left-1/2 -mt-8 w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-background p-6 text-foreground outline outline-1 outline-foreground/10 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
           <div className="w-40 h-40 bg-accent opacity-10  rounded-full absolute -top-1/4 -left-1/4 translate-x-1/2 blur-3xl"></div>
           <div className="w-40 h-40 bg-accent  rounded-full absolute -top-1/4 -right-1/4 translate-x-1/2 blur-3xl"></div>
 
@@ -100,7 +100,7 @@ export function ShortcutsDialog() {
                 <tbody>
                   {shortcuts.map((shortcut) => (
                     <tr key={shortcut.description}>
-                      <td className="py-2 text-foreground/80">
+                      <td className="py-2 text-foreground/80 font-medium">
                         {shortcut.description}
                       </td>
                       <td className="pr-4 whitespace-nowrap">
