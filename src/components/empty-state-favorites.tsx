@@ -7,7 +7,7 @@ export const EmptyStateFavorites = () => {
         <div className="min-w-[300px]  flex h-[300px]">
           <AnimatedRiveLogo src="/logo.riv" />
         </div>
-        <div className="text-foreground/60">No favorites yet</div>
+        <div className="text-foreground/60">No favorites</div>
       </div>
     </div>
   );

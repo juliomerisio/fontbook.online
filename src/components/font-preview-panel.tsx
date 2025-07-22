@@ -100,7 +100,14 @@ export function FontPreviewPanel({ font }: { font: FontMeta | null }) {
           <div className="py-4 z-10 border-b border-foreground/50 border-dashed">
             {(font.styles?.length ?? 0) > 0 && (
               <div className="px-4">
-                <h3 className="text-sm font-medium opacity-80 mb-4">Styles</h3>
+                <h3 className="text-sm font-medium opacity-80 mb-4 flex items-center gap-2">
+                  Styles
+                  {font.styles?.length && font.styles?.length > 1 && (
+                    <span className="text-xs opacity-80">
+                      (Press R to cycle through)
+                    </span>
+                  )}
+                </h3>
                 <RadioGroup
                   value={selectedStyle || font.style}
                   onValueChange={handleValueChange}

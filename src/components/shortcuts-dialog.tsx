@@ -22,6 +22,10 @@ const shortcuts = [
     description: "Toggle between All and Favorites tabs",
   },
   {
+    keys: ["r"],
+    description: "Cycle through font styles",
+  },
+  {
     keys: [Keys.Space],
     description: "Toggle sort mode (in Favorites)",
   },

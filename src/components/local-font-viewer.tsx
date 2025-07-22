@@ -481,6 +481,11 @@ export const LocalFontViewer = () => {
                   ref={searchInputRef}
                   type="text"
                   placeholder="Search"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setSearchQuery("");
+                    }
+                  }}
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="hidden lg:block px-3 py-1.5 rounded-md border border-foreground/10 bg-accent/5 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
